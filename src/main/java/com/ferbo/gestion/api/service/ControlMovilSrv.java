@@ -1,18 +1,8 @@
 package com.ferbo.gestion.api.service;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.time.LocalDate;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ferbo.gestion.api.business.AbstractGestionApiBL;
 import com.ferbo.gestion.api.dto.EmpleadoDTO;
 import com.ferbo.gestion.api.dto.SistemaDTO;
@@ -21,6 +11,18 @@ import com.ferbo.gestion.api.exception.GestionApiException;
 import com.ferbo.gestion.api.model.ControlMovil;
 import com.ferbo.gestion.api.repository.ControlMovilRepo;
 import com.ferbo.gestion.api.tool.SecurityTool;
+import com.ferbo.gestion.api.idao.IUsuarioRepo;
+import com.ferbo.gestion.core.model.sistema.Usuario;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ControlMovilSrv extends AbstractGestionApiBL
@@ -33,9 +35,15 @@ public class ControlMovilSrv extends AbstractGestionApiBL
     @Autowired
     private ControlMovilRepo controlMovilRepo;
     
+    private final IUsuarioRepo usuarioDAO;
+    
+    public ControlMovilSrv(IUsuarioRepo usuarioDAO) {
+        this.usuarioDAO = usuarioDAO;
+    }
+    
     public UsuarioMovilDTO obtenerUsuario(HttpServletRequest request, UsuarioMovilDTO body) throws GestionApiException 
     {
-        UsuarioMovilDTO usuario = null;
+        UsuarioMovilDTO usuarioDTO = null;
         
         LocalDate hoy = LocalDate.now();
         LocalDate fechaExpiracion = hoy.plusDays(7);
@@ -56,7 +64,9 @@ public class ControlMovilSrv extends AbstractGestionApiBL
         }
         
         ControlMovil nuevoToken = controlMovilRepo.findByUser(sistemaReferencia.getNombre());
+        Usuario usuario = usuarioDAO.buscarUsuarioPorNumero(body.getNumeroUsuario()).orElseThrow(() -> new RuntimeException("Error, usuario no encontrado"));
         
+        log.info("Inicia proceso de para notificar del token existente");
         if(nuevoToken != null)
         {
             int validezToken = hoy.compareTo(nuevoToken.getExpiracion());
@@ -64,24 +74,26 @@ public class ControlMovilSrv extends AbstractGestionApiBL
             if(validezToken <= 0 && nuevoToken.getValido()){
                 //Mandar el token existente si es valido
                 log.info("Ya existe un token valido, se mantiene");
-                log.info("Inicia proceso de para notificar del token existente");
                 EmpleadoDTO empleado = obtenerEmpleado(nuevoToken.getToken(), body.getNumeroUsuario());
-                usuario = asignarUsuarioMovil(empleado, nuevoToken);
-                log.info("Finaliza proceso de para notificar del token existente");
+                usuarioDTO = asignarUsuarioMovil(empleado, nuevoToken);
             } else {
                 //Pedir un nuevo token a sgp api si el existente ya no es valido o expiro  
-                usuario = obtenerUsuario(sistemaReferencia.getNombre(), sistemaReferencia.getPassword(), body);
-                nuevoToken = asignarToken(usuario, sistemaReferencia.getNombre(), fechaExpiracion);
+                log.info("Token no valido o expiro, pedir uno nuevo");
+                usuarioDTO = obtenerUsuario(sistemaReferencia.getNombre(), sistemaReferencia.getPassword(), body);
+                nuevoToken = asignarToken(usuarioDTO, sistemaReferencia.getNombre(), fechaExpiracion);
                 controlMovilRepo.guardar(nuevoToken);
             }
         } else {
             //Pedir token si no existe en bd o no hay reciente
-            usuario = obtenerUsuario(sistemaReferencia.getNombre(), sistemaReferencia.getPassword(), body);
-            nuevoToken = asignarToken(usuario, sistemaReferencia.getNombre(), fechaExpiracion);
+            log.info("Token no encontrado, pedir uno nuevo");
+            usuarioDTO = obtenerUsuario(sistemaReferencia.getNombre(), sistemaReferencia.getPassword(), body);
+            nuevoToken = asignarToken(usuarioDTO, sistemaReferencia.getNombre(), fechaExpiracion);
             controlMovilRepo.guardar(nuevoToken);
         }
+        usuarioDTO.setPerfil(usuario.getPerfil().getId());
+        log.info("Finaliza proceso de para notificar del token existente");
         
-        return usuario;
+        return usuarioDTO;
     }
     
     public UsuarioMovilDTO obtenerUsuario(String usuario, String contrasenia, UsuarioMovilDTO body) throws GestionApiException 
@@ -174,10 +186,10 @@ public class ControlMovilSrv extends AbstractGestionApiBL
     public UsuarioMovilDTO asignarUsuarioMovil(EmpleadoDTO empleado, ControlMovil token)
     {
         UsuarioMovilDTO usuario = new UsuarioMovilDTO();
-        usuario.setNumeroUsuario(empleado.getNumeroUsuario());
-        usuario.setNombreUsuario(empleado.getNombreUsuario());
-        usuario.setPrimerApUsuario(empleado.getPrimerApUsuario());
-        usuario.setSegundoApUsuario(empleado.getSegundoApUsuario());
+        usuario.setNumeroUsuario(empleado.getNumero());
+        usuario.setNombreUsuario(empleado.getNombre());
+        usuario.setPrimerApUsuario(empleado.getPrimerApellido());
+        usuario.setSegundoApUsuario(empleado.getSegundoApellido());
         usuario.setPuesto(empleado.getPuesto());
         usuario.setToken(token.getToken());
         usuario.setRefreshToken(token.getToken());
@@ -191,7 +203,7 @@ public class ControlMovilSrv extends AbstractGestionApiBL
         token.setToken(usuario.getToken());
         token.setExpiracion(fechaExpiracion);
         token.setValido(Boolean.TRUE);
-        token.setClienteSistema(nombreSistema);
+        token.setUsuarioSistema(nombreSistema);
         
         return token;
     }
@@ -199,7 +211,7 @@ public class ControlMovilSrv extends AbstractGestionApiBL
     public String deshabilitarToken(String authHeader) throws GestionApiException 
     {
         String token = authHeader.replace("Bearer ", "");
-        String tokenDeshabilitado = deshabilitar(token);
+        String tokenDeshabilitado = deshabilitar(authHeader);
         log.info("Token deshabilitado de SGP-API: {}", tokenDeshabilitado);
         
         ControlMovil controlMovil = controlMovilRepo.findByToken(token);
@@ -228,7 +240,7 @@ public class ControlMovilSrv extends AbstractGestionApiBL
             url = String.join("", host, context);
             
             request = createGetRequest(url);
-            request.setHeader("Authorization", "Bearer " + token);
+            request.setHeader("Authorization", token);
             response = httpClient.execute(request);
             httpStatus = response.getStatusLine().getStatusCode();
             

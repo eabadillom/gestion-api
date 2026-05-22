@@ -31,7 +31,9 @@ public class MovilController
         UsuarioMovilDTO usuario = null;
         
         try{
+            log.info("Inicia el proceso para generar el usuario");
             usuario = controlMovilSrv.obtenerUsuario(request, body);
+            log.info("Finaliza el proceso para generar el usuario");
         } catch(RuntimeException ex){
             log.warn("Hubo un problema al obtener los datos. {}", ex);
             return ErrorResponseBuilder.construirErrorMovil(HttpStatus.NOT_FOUND, TIPO_ERROR_ACCESO, ex);

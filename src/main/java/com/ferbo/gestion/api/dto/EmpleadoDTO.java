@@ -2,45 +2,45 @@ package com.ferbo.gestion.api.dto;
 
 public class EmpleadoDTO 
 {
-    private String numeroUsuario;
-    private String nombreUsuario;
-    private String primerApUsuario;
-    private String segundoApUsuario;
+    private String numero;
+    private String nombre;
+    private String primerApellido;
+    private String segundoApellido;
     private String puesto;
 
     public EmpleadoDTO() {
     }
 
-    public String getNumeroUsuario() {
-        return numeroUsuario;
+    public String getNumero() {
+        return numero;
     }
 
-    public void setNumeroUsuario(String numeroUsuario) {
-        this.numeroUsuario = numeroUsuario;
+    public void setNumero(String numero) {
+        this.numero = numero;
     }
 
-    public String getNombreUsuario() {
-        return nombreUsuario;
+    public String getNombre() {
+        return nombre;
     }
 
-    public void setNombreUsuario(String nombreUsuario) {
-        this.nombreUsuario = nombreUsuario;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
-    public String getPrimerApUsuario() {
-        return primerApUsuario;
+    public String getPrimerApellido() {
+        return primerApellido;
     }
 
-    public void setPrimerApUsuario(String primerApUsuario) {
-        this.primerApUsuario = primerApUsuario;
+    public void setPrimerApellido(String primerApellido) {
+        this.primerApellido = primerApellido;
     }
 
-    public String getSegundoApUsuario() {
-        return segundoApUsuario;
+    public String getSegundoApellido() {
+        return segundoApellido;
     }
 
-    public void setSegundoApUsuario(String segundoApUsuario) {
-        this.segundoApUsuario = segundoApUsuario;
+    public void setSegundoApellido(String segundoApellido) {
+        this.segundoApellido = segundoApellido;
     }
 
     public String getPuesto() {
@@ -49,6 +49,11 @@ public class EmpleadoDTO
 
     public void setPuesto(String puesto) {
         this.puesto = puesto;
+    }
+
+    @Override
+    public String toString() {
+        return "EmpleadoDTO{" + "numero=" + numero + ", nombre=" + nombre + ", primerApellido=" + primerApellido + ", segundoApellido=" + segundoApellido + ", puesto=" + puesto + '}';
     }
     
 }

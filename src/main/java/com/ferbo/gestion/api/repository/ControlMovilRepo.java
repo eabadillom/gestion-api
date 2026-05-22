@@ -16,7 +16,7 @@ public class ControlMovilRepo extends BaseDAO<ControlMovil, Integer>
     
     public ControlMovil findByUser(String username) {
         return transactManager.executeRead(em -> {
-            String query = "SELECT cm FROM ControlMovil cm WHERE cm.clienteSistema = :nombreUsuario AND cm.valido = true ORDER BY cm.expiracion DESC";
+            String query = "SELECT cm FROM ControlMovil cm WHERE cm.usuarioSistema = :nombreUsuario AND cm.valido = true ORDER BY cm.expiracion DESC";
             
             TypedQuery<ControlMovil> entity = em.createQuery(query, ControlMovil.class);
             entity.setParameter("nombreUsuario", username);

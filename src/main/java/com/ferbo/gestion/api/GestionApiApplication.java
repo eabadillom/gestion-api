@@ -8,7 +8,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@EntityScan(basePackages = {"com.ferbo.gestion.core", "com.ferbo.gestion.api.model"})
+@EntityScan(basePackages = {"com.ferbo.gestion.core.model", "com.ferbo.gestion.api.model"})
 @ComponentScan(basePackages = {"com.ferbo.gestion"})
 public class GestionApiApplication extends SpringBootServletInitializer
 {

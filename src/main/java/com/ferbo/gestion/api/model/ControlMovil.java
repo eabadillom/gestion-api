@@ -35,8 +35,8 @@ public class ControlMovil implements Serializable
     
     @Size(max = 50)
     @Basic(optional = false)
-    @Column(name = "nb_cliente", nullable = false, length = 50)
-    private String clienteSistema;
+    @Column(name = "nb_usuario_sistema", nullable = false, length = 50)
+    private String usuarioSistema;
 
     public Integer getId() {
         return id;
@@ -70,12 +70,12 @@ public class ControlMovil implements Serializable
         this.valido = valido;
     }
 
-    public String getClienteSistema() {
-        return clienteSistema;
+    public String getUsuarioSistema() {
+        return usuarioSistema;
     }
 
-    public void setClienteSistema(String clienteSistema) {
-        this.clienteSistema = clienteSistema;
+    public void setUsuarioSistema(String usuarioSistema) {
+        this.usuarioSistema = usuarioSistema;
     }
 
     @Override

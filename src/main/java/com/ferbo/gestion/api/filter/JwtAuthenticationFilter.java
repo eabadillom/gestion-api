@@ -17,7 +17,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 import com.ferbo.gestion.api.auth.JwtUtil;
-import com.ferbo.gestion.api.model.ControlMovil;
 import com.ferbo.gestion.api.repository.ControlMovilRepo;
 
 @Component
@@ -38,27 +37,28 @@ public class JwtAuthenticationFilter extends GenericFilterBean
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String authHeader = httpRequest.getHeader("Authorization");
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) 
-        {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String jwt = authHeader.substring(7);
 
-            ControlMovil controlMovil = controlMovilRepo.findByToken(jwt);
+            try {
+                if (jwtUtil.isValid(jwt)) {
+                    String username = jwtUtil.extractUsername(jwt);
 
-            if (!controlMovil.getValido()) {
-                throw new RuntimeException("Acceso no autorizado");
-            }
+                    List<GrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"));
 
-            if (jwtUtil.isValid(jwt)) {
-                String username = jwtUtil.extractUsername(jwt);
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, null, authorities);
 
-                List<GrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"));
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
 
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, null, authorities);
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (Exception e) {
+                SecurityContextHolder.clearContext();
+                throw new RuntimeException("Token inválido o expirado", e);
             }
         }
+
         chain.doFilter(request, response);
     }
     

@@ -1,7 +1,7 @@
 package com.ferbo.gestion.api.mapper;
 
 import com.ferbo.gestion.api.dto.AsentamientoDTO;
-import com.ferbo.gestion.core.model.Asentamiento;
+import com.ferbo.gestion.core.model.domicilio.Asentamiento;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

@@ -29,6 +29,11 @@ public class SecurityConfig
     @Autowired
     private JwtAuthenticationFilter jwtAtuthenticationFilter;
     
+    /*
+    * TODO: Al cambiar de version de SpringBoot de 2.7.18 -> 3.5.13, quitar 
+    * los 'new AntPathRequestMatcher()' y solo deja la ruta '/gestion/**'
+    * dentro de los .requestMatchers() 
+    */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception 
     {
@@ -37,6 +42,7 @@ public class SecurityConfig
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))// JWT es "stateless", no necesitamos sesiones de servidor
             .authorizeRequests(auth -> auth
                 .requestMatchers(new AntPathRequestMatcher("/gestion/**")).authenticated()
+                .requestMatchers(new AntPathRequestMatcher("/movil/generar")).authenticated()
                 .requestMatchers(new AntPathRequestMatcher("/movil/**")).authenticated()
                 .anyRequest().authenticated()
             )

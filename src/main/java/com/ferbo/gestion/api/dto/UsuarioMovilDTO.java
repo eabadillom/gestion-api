@@ -7,6 +7,7 @@ public class UsuarioMovilDTO
     private String primerApUsuario;
     private String segundoApUsuario;
     private String puesto;
+    private int perfil;
     private String token;
     private String refreshToken;
 
@@ -51,6 +52,14 @@ public class UsuarioMovilDTO
 
     public void setPuesto(String puesto) {
         this.puesto = puesto;
+    }
+
+    public int getPerfil() {
+        return perfil;
+    }
+
+    public void setPerfil(int perfil) {
+        this.perfil = perfil;
     }
 
     public String getToken() {
