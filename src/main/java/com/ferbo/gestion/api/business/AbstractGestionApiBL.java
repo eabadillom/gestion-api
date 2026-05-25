@@ -34,6 +34,8 @@ public class AbstractGestionApiBL
     protected byte[] encodedAuth = null;
     protected String authHeaderValue = null;
     
+    protected String basePathSGPApi = null;
+    
     protected CloseableHttpClient httpClient = null;
 
     public AbstractGestionApiBL() {
@@ -45,6 +47,8 @@ public class AbstractGestionApiBL
         auth = String.format("%s:%s", user, password);
         encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
         authHeaderValue = "Basic " + new String(encodedAuth);
+        
+        basePathSGPApi = DataSourceManager.getJndiParameter("sgpapi/api");
         
         httpClient = HttpClients.createDefault();
     }

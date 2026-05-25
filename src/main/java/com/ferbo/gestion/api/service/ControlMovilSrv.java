@@ -235,7 +235,7 @@ public class ControlMovilSrv extends AbstractGestionApiBL
         int httpStatus = -1;
         
         try {
-            String host = this.basePath;
+            String host = this.basePathSGPApi;
             String context = "/sgp-api/movil/deshabilitar";
             url = String.join("", host, context);
             

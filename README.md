@@ -79,6 +79,47 @@ Para obtener el candado de salida solo es pasarle el identificador del cliente p
 ### Actualizar el Candado de Salida
 * /movil/candadoSalida/{idCandado}
 
-####Nota
+#### Nota
 Para actualizar el candado de salida solo es pasarle el identificador del candado y el objeto del candado
+
+#### Nota
+Para cambiar de version de java 8 a java 11 o 17 hacer esto en la clase 'SecurityConfig':
+
+En java 8:
+
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception 
+    {
+        http
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))// JWT es "stateless", no necesitamos sesiones de servidor
+            .authorizeRequests(auth -> auth
+                .requestMatchers(new AntPathRequestMatcher("/gestion/**")).authenticated()
+                .requestMatchers(new AntPathRequestMatcher("/movil/generar")).authenticated()
+                .requestMatchers(new AntPathRequestMatcher("/movil/**")).authenticated()
+                .anyRequest().authenticated()
+            )
+            .httpBasic(Customizer.withDefaults())
+            .addFilterBefore(jwtAtuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            
+        return http.build();
+    }
+
+En java 11 en adelante:
+
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception 
+    {
+        http
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))// JWT es "stateless", no necesitamos sesiones de servidor
+            .authorizeRequests(auth -> auth
+                .requestMatchers("/gestion/**").authenticated()
+                .requestMatchers("/movil/generar").authenticated()
+                .requestMatchers("/movil/**").authenticated()
+                .anyRequest().authenticated()
+            )
+            .httpBasic(Customizer.withDefaults())
+            .addFilterBefore(jwtAtuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            
+        return http.build();
+    }
 
