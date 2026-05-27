@@ -20,7 +20,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.google.gson.Gson;
 
-public class AbstractGestionApiBL 
+public abstract class AbstractGestionApiBL 
 {
     private static Logger log = LogManager.getLogger(AbstractGestionApiBL.class);
 
@@ -28,13 +28,10 @@ public class AbstractGestionApiBL
     protected String basePath = null;
     protected String user = null;
     protected String password = null;
-    protected String role = null;
 
     protected String auth = null;
     protected byte[] encodedAuth = null;
     protected String authHeaderValue = null;
-    
-    protected String basePathSGPApi = null;
     
     protected CloseableHttpClient httpClient = null;
 
@@ -42,13 +39,10 @@ public class AbstractGestionApiBL
         basePath = DataSourceManager.getJndiParameter("gestionapi/api");
         user = DataSourceManager.getJndiParameter("gestionapi/user");
         password = DataSourceManager.getJndiParameter("gestionapi/password");
-        role = DataSourceManager.getJndiParameter("gestionapi/role");
         
         auth = String.format("%s:%s", user, password);
         encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
         authHeaderValue = "Basic " + new String(encodedAuth);
-        
-        basePathSGPApi = DataSourceManager.getJndiParameter("sgpapi/api");
         
         httpClient = HttpClients.createDefault();
     }

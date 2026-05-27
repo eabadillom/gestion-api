@@ -1,7 +1,6 @@
 package com.ferbo.gestion.api.config;
 
 import com.ferbo.gestion.api.filter.JwtAuthenticationFilter;
-import com.ferbo.gestion.api.tool.SistemaDetailsSrv;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,9 +22,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig 
 {
-    @Autowired
-    private SistemaDetailsSrv sistemaDetailsSrv;
-    
     @Autowired
     private JwtAuthenticationFilter jwtAtuthenticationFilter;
     

@@ -56,7 +56,6 @@ public class ControlMovilSrv extends AbstractGestionApiBL
         SistemaDTO sistemaReferencia = new SistemaDTO();
         sistemaReferencia.setNombre(this.user);
         sistemaReferencia.setPassword(this.password);
-        sistemaReferencia.setRol(this.role);
         log.info("Finaliza proceso de obtencion del sistema");
         
         if(!credenciales[0].equals(sistemaReferencia.getNombre()) || !credenciales[1].equals(sistemaReferencia.getPassword())){
@@ -235,7 +234,7 @@ public class ControlMovilSrv extends AbstractGestionApiBL
         int httpStatus = -1;
         
         try {
-            String host = this.basePathSGPApi;
+            String host = this.basePath;
             String context = "/sgp-api/movil/deshabilitar";
             url = String.join("", host, context);
             

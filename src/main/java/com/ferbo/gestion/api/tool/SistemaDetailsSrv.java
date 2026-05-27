@@ -1,6 +1,7 @@
 package com.ferbo.gestion.api.tool;
 
 import com.ferbo.gestion.api.business.AbstractGestionApiBL;
+import java.util.Collections;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.security.core.userdetails.User;
@@ -27,7 +28,7 @@ public class SistemaDetailsSrv extends AbstractGestionApiBL implements UserDetai
         try {
             user = User.withUsername(this.user)
                 .password(new BCryptPasswordEncoder().encode(this.password))
-                .roles(this.role)
+                .authorities(Collections.emptyList())
                 .build();
         }catch(Exception ex) {
             log.error("Problema para extraer el usuario: " + username, ex);
