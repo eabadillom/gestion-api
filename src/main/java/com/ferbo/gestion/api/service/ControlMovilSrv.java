@@ -46,6 +46,7 @@ public class ControlMovilSrv extends AbstractGestionApiBL
         UsuarioMovilDTO usuarioDTO = null;
         
         LocalDate hoy = LocalDate.now();
+        //Tiempo de expiración del token.
         LocalDate fechaExpiracion = hoy.plusDays(7);
 
         log.info("Inicia proceso de extraccion de credenciales");

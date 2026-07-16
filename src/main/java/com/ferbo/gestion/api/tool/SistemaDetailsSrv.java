@@ -26,6 +26,7 @@ public class SistemaDetailsSrv extends AbstractGestionApiBL implements UserDetai
         UserDetails user = null;
         
         try {
+        	log.info("username: {}", username);
             user = User.withUsername(this.user)
                 .password(new BCryptPasswordEncoder().encode(this.password))
                 .authorities(Collections.emptyList())
