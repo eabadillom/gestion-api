@@ -18,7 +18,26 @@
 *.zip
 *.tar.gz
 *.rar
+mvnw
+mvnw.cmd
+HELP.md
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Eclipse files
+.classpath
+.project
+.factorypath
+
+# Netbeans files
+nb-configuration.xml
+
+# Folders
+bin/
+build/
+/target/
+.settings/
+.vscode/
+.mvn/
