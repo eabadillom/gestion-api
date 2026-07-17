@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="info">
+    <Appenders>
+        <!-- Consola -->
+        <Console name="LogToConsole" target="SYSTEM_OUT">
+            <PatternLayout pattern="[%p] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %m%n"/>
+        </Console>
+
+        <!-- Archivo con rotación -->
+        <RollingFile name="LogToRollingFile" fileName="${sys:catalina.home}/logs/users.log"
+                     filePattern="${sys:catalina.home}/logs/$${date:yyyy-MM}/users-%d{MM-dd-yyyy}-%i.log.gz">
+            <PatternLayout pattern="%d %p %C{1.} [%t] %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- Logger para la aplicación -->
+        <Logger name="com.chakray.users" level="info" additivity="false">
+            <AppenderRef ref="LogToRollingFile"/>
+            <AppenderRef ref="LogToConsole"/>
+        </Logger>
+
+        <!-- Logger para Hibernate -->
+        <Logger name="org.hibernate" level="info" additivity="false">
+            <AppenderRef ref="LogToConsole"/>
+            <AppenderRef ref="LogToRollingFile"/>
+        </Logger>
+
+        <!-- Logger raíz -->
+        <Root level="info">
+            <AppenderRef ref="LogToRollingFile"/>
+            <AppenderRef ref="LogToConsole"/>
+        </Root>
+    </Loggers>
+</Configuration>
