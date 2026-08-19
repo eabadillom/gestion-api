@@ -15,7 +15,7 @@ API para el sistema de inventarios, facturacion y cobranza de FERBO
 * /movil/clientes
 
 ### Ocupación Camara
-* /movil/ocupacion/planta/{numUsuario} 
+* /movil/ocupacion/planta/{numUsuario}
 * /movil/ocupacion/planta/{numUsuario}?clientes=6
 * /movil/ocupacion/planta/{numUsuario}?clientes=6&clientes=26
 
@@ -82,44 +82,60 @@ Para obtener el candado de salida solo es pasarle el identificador del cliente p
 #### Nota
 Para actualizar el candado de salida solo es pasarle el identificador del candado y el objeto del candado
 
-#### Nota
+## Actualización de JDK
 Para cambiar de version de java 8 a java 11 o 17 hacer esto en la clase 'SecurityConfig':
 
 En java 8:
 
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception 
-    {
-        http
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))// JWT es "stateless", no necesitamos sesiones de servidor
-            .authorizeRequests(auth -> auth
-                .requestMatchers(new AntPathRequestMatcher("/gestion/**")).authenticated()
-                .requestMatchers(new AntPathRequestMatcher("/movil/generar")).authenticated()
-                .requestMatchers(new AntPathRequestMatcher("/movil/**")).authenticated()
-                .anyRequest().authenticated()
-            )
-            .httpBasic(Customizer.withDefaults())
-            .addFilterBefore(jwtAtuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-            
-        return http.build();
-    }
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception 
+        {
+            http
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))// JWT es "stateless", no necesitamos sesiones de servidor
+                .authorizeRequests(auth -> auth
+                    .requestMatchers(new AntPathRequestMatcher("/gestion/**")).authenticated()
+                    .requestMatchers(new AntPathRequestMatcher("/movil/generar")).authenticated()
+                    .requestMatchers(new AntPathRequestMatcher("/movil/**")).authenticated()
+                    .anyRequest().authenticated()
+                )
+                .httpBasic(Customizer.withDefaults())
+                .addFilterBefore(jwtAtuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                
+            return http.build();
+        }
 
 En java 11 en adelante:
 
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception 
-    {
-        http
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))// JWT es "stateless", no necesitamos sesiones de servidor
-            .authorizeRequests(auth -> auth
-                .requestMatchers("/gestion/**").authenticated()
-                .requestMatchers("/movil/generar").authenticated()
-                .requestMatchers("/movil/**").authenticated()
-                .anyRequest().authenticated()
-            )
-            .httpBasic(Customizer.withDefaults())
-            .addFilterBefore(jwtAtuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-            
-        return http.build();
-    }
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception 
+        {
+            http
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))// JWT es "stateless", no necesitamos sesiones de servidor
+                .authorizeRequests(auth -> auth
+                    .requestMatchers("/gestion/**").authenticated()
+                    .requestMatchers("/movil/generar").authenticated()
+                    .requestMatchers("/movil/**").authenticated()
+                    .anyRequest().authenticated()
+                )
+                .httpBasic(Customizer.withDefaults())
+                .addFilterBefore(jwtAtuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                
+            return http.build();
+        }
+
+## Configuración
+Para ejecutar el proyecto, se deben configurar las variables JNDI en el servidor de aplicaciones:
+
+        Variable:  gestionapi/api
+        Valor: {url apuntando a sgp-api}
+        Tipo: java.lang.String
+        
+        Variable: gestionapi/user
+        Valor: {usuario de acceso a sgp-api}
+        Tipo: java.lang.String
+    
+        Variable: gestionapi/password
+        Valor: {contraseña de acceso a sgp-api}
+        Tipo: java.lang.String
+
 

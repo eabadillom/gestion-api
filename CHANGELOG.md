@@ -14,7 +14,7 @@ Este proyecto sigue versionado semántico (SemVer) y el formato de [Keep a Chang
 ## [1.0.0] - 2026-04-27
 
 ### Added
-- Creación inicial del proyecto
+- Creación del proyecto
 - Configuración base de Spring Boot
 - Autenticacion basica y JWT (filtros)
 - Estructura de capas
