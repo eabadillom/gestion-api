@@ -3,7 +3,6 @@ package com.ferbo.gestion.api.controller;
 import com.ferbo.gestion.api.dto.UsuarioMovilDTO;
 import com.ferbo.gestion.api.exception.ErrorResponseBuilder;
 import com.ferbo.gestion.api.service.ControlMovilSrv;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +26,12 @@ public class MovilController
     private ControlMovilSrv controlMovilSrv;
     
     @GetMapping("/generar")
-    public ResponseEntity<?> inicioPantalla(HttpServletRequest request, @RequestBody UsuarioMovilDTO body) {
+    public ResponseEntity<?> inicioPantalla(@RequestHeader("Authorization") String authHeader, @RequestBody UsuarioMovilDTO body) {
         UsuarioMovilDTO usuario = null;
         
         try{
             log.info("Inicia el proceso para generar el usuario");
-            usuario = controlMovilSrv.obtenerUsuario(request, body);
+            usuario = controlMovilSrv.obtenerUsuario(authHeader, body);
             log.info("Finaliza el proceso para generar el usuario");
         } catch(RuntimeException ex){
             log.warn("Hubo un problema al obtener los datos. {}", ex);

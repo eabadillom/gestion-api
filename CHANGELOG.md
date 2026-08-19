@@ -6,6 +6,11 @@ Este proyecto sigue versionado semántico (SemVer) y el formato de [Keep a Chang
 
 ---
 
+## [1.0.1] - 2026-08-19
+
+### Added
+- Corrección en la comunicación entre gestion-api y sgp-api
+
 ## [1.0.0] - 2026-04-27
 
 ### Added
