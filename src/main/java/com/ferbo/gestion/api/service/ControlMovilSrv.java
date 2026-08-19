@@ -1,9 +1,7 @@
 package com.ferbo.gestion.api.service;
 
-import java.io.IOException;
 import java.time.LocalDate;
-import javax.servlet.http.HttpServletRequest;
-import com.ferbo.gestion.api.business.AbstractGestionApiBL;
+
 import com.ferbo.gestion.api.dto.EmpleadoDTO;
 import com.ferbo.gestion.api.dto.SistemaDTO;
 import com.ferbo.gestion.api.dto.UsuarioMovilDTO;
@@ -13,19 +11,16 @@ import com.ferbo.gestion.api.repository.ControlMovilRepo;
 import com.ferbo.gestion.api.tool.SecurityTool;
 import com.ferbo.gestion.api.idao.IUsuarioRepo;
 import com.ferbo.gestion.core.model.sistema.Usuario;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
+import com.ferbo.gestion.api.business.SistemaAuthBL;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ControlMovilSrv extends AbstractGestionApiBL
+public class ControlMovilSrv 
 {
     private static Logger log = LogManager.getLogger(ControlMovilSrv.class);
     
@@ -35,13 +30,16 @@ public class ControlMovilSrv extends AbstractGestionApiBL
     @Autowired
     private ControlMovilRepo controlMovilRepo;
     
+    @Autowired
+    private SistemaAuthBL sistemaAuthBL;
+    
     private final IUsuarioRepo usuarioDAO;
     
     public ControlMovilSrv(IUsuarioRepo usuarioDAO) {
         this.usuarioDAO = usuarioDAO;
     }
     
-    public UsuarioMovilDTO obtenerUsuario(HttpServletRequest request, UsuarioMovilDTO body) throws GestionApiException 
+    public UsuarioMovilDTO obtenerUsuario(String authHeader, UsuarioMovilDTO body) throws GestionApiException 
     {
         UsuarioMovilDTO usuarioDTO = null;
         
@@ -49,16 +47,17 @@ public class ControlMovilSrv extends AbstractGestionApiBL
         LocalDate fechaExpiracion = hoy.plusDays(7);
 
         log.info("Inicia proceso de extraccion de credenciales");
-        String[] credenciales = securityTool.extractCredentials(request);
+        String[] credenciales = securityTool.extractBasicAuth(authHeader);
         log.info("Finaliza proceso de extraccion de credenciales");
         
-        log.info("Inicia proceso de obtencion del sistema");
-        SistemaDTO sistemaReferencia = new SistemaDTO();
-        sistemaReferencia.setNombre(this.user);
-        sistemaReferencia.setPassword(this.password);
+        log.info("Inicia proceso de obtencion del sistema"); 
+        SistemaDTO sistemaReferencia = sistemaAuthBL.autenticaUsuario(credenciales[0]); 
         log.info("Finaliza proceso de obtencion del sistema");
         
-        if(!credenciales[0].equals(sistemaReferencia.getNombre()) || !credenciales[1].equals(sistemaReferencia.getPassword())){
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        boolean passCorrecta = encoder.matches(credenciales[1], sistemaReferencia.getPassword());
+        
+        if(!credenciales[0].equals(sistemaReferencia.getNombre()) || !passCorrecta){
             throw new GestionApiException("Credenciales no validas");
         }
         
@@ -73,19 +72,19 @@ public class ControlMovilSrv extends AbstractGestionApiBL
             if(validezToken <= 0 && nuevoToken.getValido()){
                 //Mandar el token existente si es valido
                 log.info("Ya existe un token valido, se mantiene");
-                EmpleadoDTO empleado = obtenerEmpleado(nuevoToken.getToken(), body.getNumeroUsuario());
+                EmpleadoDTO empleado = sistemaAuthBL.obtenerEmpleado(nuevoToken.getToken(), body.getNumeroUsuario());
                 usuarioDTO = asignarUsuarioMovil(empleado, nuevoToken);
             } else {
                 //Pedir un nuevo token a sgp api si el existente ya no es valido o expiro  
                 log.info("Token no valido o expiro, pedir uno nuevo");
-                usuarioDTO = obtenerUsuario(sistemaReferencia.getNombre(), sistemaReferencia.getPassword(), body);
+                usuarioDTO = sistemaAuthBL.obtenerUsuario(credenciales[0], credenciales[1], body);
                 nuevoToken = asignarToken(usuarioDTO, sistemaReferencia.getNombre(), fechaExpiracion);
                 controlMovilRepo.guardar(nuevoToken);
             }
         } else {
             //Pedir token si no existe en bd o no hay reciente
             log.info("Token no encontrado, pedir uno nuevo");
-            usuarioDTO = obtenerUsuario(sistemaReferencia.getNombre(), sistemaReferencia.getPassword(), body);
+            usuarioDTO = sistemaAuthBL.obtenerUsuario(credenciales[0], credenciales[1], body);
             nuevoToken = asignarToken(usuarioDTO, sistemaReferencia.getNombre(), fechaExpiracion);
             controlMovilRepo.guardar(nuevoToken);
         }
@@ -93,93 +92,6 @@ public class ControlMovilSrv extends AbstractGestionApiBL
         log.info("Finaliza proceso de para notificar del token existente");
         
         return usuarioDTO;
-    }
-    
-    public UsuarioMovilDTO obtenerUsuario(String usuario, String contrasenia, UsuarioMovilDTO body) throws GestionApiException 
-    {
-        UsuarioMovilDTO respuesta = null;
-        
-        String url = null;
-        HttpUriRequest request = null;
-        CloseableHttpResponse response = null;
-        
-        Gson prettyGson   = null;
-        String jsonResponse = null;
-        
-        int httpStatus = -1;
-        ObjectMapper mapper = new ObjectMapper();
-        
-        try {
-            String host = this.basePath;
-            String context = "/sgp-api/movil/generar";
-            url = String.join("", host, context);
-            
-            String jsonBody = mapper.writeValueAsString(body);
-            
-            request = createGetRequest(url, jsonBody);
-            response = httpClient.execute(request);
-            httpStatus = response.getStatusLine().getStatusCode();
-            
-            if(httpStatus < 200 || httpStatus >= 300)
-            	throw new GestionApiException("Respuesta no satisfactoria del SGP-API.");
-			
-            //La solicitud si está en el rango 200
-            jsonResponse = this.getResponseBody(response);
-            
-            prettyGson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'hh:mm:ss").create();
-            respuesta = prettyGson.fromJson(jsonResponse, UsuarioMovilDTO.class);
-        } catch(GestionApiException ex) {
-            log.error("Se presentó un problema en la comunicación con el SGP-API...", ex);
-            String message = this.getErrorMessage(response);
-            throw new GestionApiException(message);
-        } catch(IOException ex) {
-            log.error("Se presentó un problema en la comunicación con el SGP-API...", ex);
-            throw new GestionApiException(ex);
-        }
-
-        return respuesta;
-    }
-    
-    public EmpleadoDTO obtenerEmpleado(String token, String numeroUsuario) throws GestionApiException 
-    {
-        EmpleadoDTO respuesta = null;
-        
-        String url = null;
-        HttpGet request = null;
-        CloseableHttpResponse response = null;
-        
-        Gson prettyGson   = null;
-        String jsonResponse = null;
-        
-        int httpStatus = -1;
-        
-        try {
-            String host = this.basePath;
-            String context = String.format("/sgp-api/movil/empleado/%s", numeroUsuario);
-            url = String.join("", host, context);
-            
-            request = createGetRequest(url);
-            response = httpClient.execute(request);
-            httpStatus = response.getStatusLine().getStatusCode();
-            
-            if(httpStatus < 200 || httpStatus >= 300)
-            	throw new GestionApiException("Respuesta no satisfactoria del SGP-API.");
-			
-            //La solicitud si está en el rango 200
-            jsonResponse = this.getResponseBody(response);
-            
-            prettyGson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'hh:mm:ss").create();
-            respuesta = prettyGson.fromJson(jsonResponse, EmpleadoDTO.class);
-        } catch(GestionApiException ex) {
-            log.error("Se presentó un problema en la comunicación con el SGP-API...", ex);
-            String message = this.getErrorMessage(response);
-            throw new GestionApiException(message);
-        } catch(IOException ex) {
-            log.error("Se presentó un problema en la comunicación con el SGP-API...", ex);
-            throw new GestionApiException(ex);
-        }
-
-        return respuesta;
     }
     
     public UsuarioMovilDTO asignarUsuarioMovil(EmpleadoDTO empleado, ControlMovil token)
@@ -210,7 +122,7 @@ public class ControlMovilSrv extends AbstractGestionApiBL
     public String deshabilitarToken(String authHeader) throws GestionApiException 
     {
         String token = authHeader.replace("Bearer ", "");
-        String tokenDeshabilitado = deshabilitar(authHeader);
+        String tokenDeshabilitado = sistemaAuthBL.deshabilitar(authHeader);
         log.info("Token deshabilitado de SGP-API: {}", tokenDeshabilitado);
         
         ControlMovil controlMovil = controlMovilRepo.findByToken(token);
@@ -218,48 +130,6 @@ public class ControlMovilSrv extends AbstractGestionApiBL
         controlMovilRepo.actualizar(controlMovil);
         
         return "El proceso finalizo exitosamente";
-    }
-    
-    public String deshabilitar(String token) throws GestionApiException 
-    {
-        String respuesta = null;
-        
-        String url = null;
-        HttpGet request = null;
-        CloseableHttpResponse response = null;
-        
-        Gson prettyGson   = null;
-        String jsonResponse = null;
-        
-        int httpStatus = -1;
-        
-        try {
-            String host = this.basePath;
-            String context = "/sgp-api/movil/deshabilitar";
-            url = String.join("", host, context);
-            
-            request = createGetRequest(url);
-            request.setHeader("Authorization", token);
-            response = httpClient.execute(request);
-            httpStatus = response.getStatusLine().getStatusCode();
-            
-            if(httpStatus < 200 || httpStatus >= 300)
-            	throw new GestionApiException("Respuesta no satisfactoria del SGP-API.");
-			
-            //La solicitud si está en el rango 200
-            jsonResponse = this.getResponseBody(response);
-            
-            respuesta = jsonResponse;
-        } catch(GestionApiException ex) {
-            log.error("Se presentó un problema en la comunicación con el SGP-API...", ex);
-            String message = this.getErrorMessage(response);
-            throw new GestionApiException(message);
-        } catch(IOException ex) {
-            log.error("Se presentó un problema en la comunicación con el SGP-API...", ex);
-            throw new GestionApiException(ex);
-        }
-
-        return respuesta;
     }
     
 }

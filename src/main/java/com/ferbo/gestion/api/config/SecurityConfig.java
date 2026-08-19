@@ -1,12 +1,16 @@
 package com.ferbo.gestion.api.config;
 
 import com.ferbo.gestion.api.filter.JwtAuthenticationFilter;
+import com.ferbo.gestion.api.tool.SistemaDetailsSrv;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.Customizer;
@@ -19,11 +23,25 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
 public class SecurityConfig 
 {
     @Autowired
+    private SistemaDetailsSrv sistemaDetailsSrv;
+    
+    @Autowired
     private JwtAuthenticationFilter jwtAtuthenticationFilter;
+    
+    @Bean
+    public AuthenticationProvider authenticationProvider() 
+    {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+
+        provider.setUserDetailsService(sistemaDetailsSrv);
+        provider.setPasswordEncoder(encoder());
+
+        return provider;
+    }
     
     /*
     * TODO: Al cambiar de version de SpringBoot de 2.7.18 -> 3.5.13, quitar 
