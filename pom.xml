@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>com.ferbo</groupId>
 	<artifactId>gestion-api</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.1-RELEASE</version>
 	<packaging>war</packaging>
 	<name>Gestion api</name>
 	<description>Api para la gestion de inventarios</description>
@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>com.ferbo</groupId>
 			<artifactId>gestion-reports</artifactId>
-			<version>1.4.0-RELEASE</version>
+			<version>1.5.0-RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
