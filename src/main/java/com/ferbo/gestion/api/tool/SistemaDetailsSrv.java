@@ -1,20 +1,25 @@
 package com.ferbo.gestion.api.tool;
 
-import com.ferbo.gestion.api.business.AbstractGestionApiBL;
-import java.util.Collections;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.ferbo.gestion.api.business.SistemaAuthBL;
+import com.ferbo.gestion.api.dto.SistemaDTO;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 @Service
-public class SistemaDetailsSrv extends AbstractGestionApiBL implements UserDetailsService 
+public class SistemaDetailsSrv implements UserDetailsService 
 {
     private static Logger log = LogManager.getLogger(SistemaDetailsSrv.class);
+    
+    @Autowired
+    private SistemaAuthBL sistemaAuthBL;
 
     public SistemaDetailsSrv() {
         super();
@@ -24,14 +29,15 @@ public class SistemaDetailsSrv extends AbstractGestionApiBL implements UserDetai
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException 
     {
         UserDetails user = null;
+        SistemaDTO sistemaDTO = null;
         
         try {
-        	log.info("username: {}", username);
-            user = User.withUsername(this.user)
-                .password(new BCryptPasswordEncoder().encode(this.password))
-                .authorities(Collections.emptyList())
+            sistemaDTO = sistemaAuthBL.autenticaUsuario(username);
+            user = User.withUsername(sistemaDTO.getNombre())
+                .password(sistemaDTO.getPassword())
+                .roles(sistemaDTO.getRol())
                 .build();
-        }catch(Exception ex) {
+        } catch(Exception ex) {
             log.error("Problema para extraer el usuario: " + username, ex);
         }
         

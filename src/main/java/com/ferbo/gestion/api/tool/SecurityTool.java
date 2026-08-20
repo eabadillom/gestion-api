@@ -1,5 +1,6 @@
 package com.ferbo.gestion.api.tool;
 
+import java.nio.charset.StandardCharsets;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import org.apache.logging.log4j.LogManager;
@@ -25,5 +26,12 @@ public class SecurityTool
         }
 
         return null; 
+    }
+    
+    public String[] extractBasicAuth(String authHeader) {
+        String base64Credentials = authHeader.substring(6).trim();
+        byte[] credDecoded = Base64.getDecoder().decode(base64Credentials);
+        String credentials = new String(credDecoded, StandardCharsets.UTF_8);
+        return credentials.split(":", 2);
     }
 }
