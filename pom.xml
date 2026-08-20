@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>com.ferbo</groupId>
 	<artifactId>gestion-api</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.0.1-RELEASE</version>
 	<packaging>war</packaging>
 	<name>Gestion api</name>
 	<description>Api para la gestion de inventarios</description>
