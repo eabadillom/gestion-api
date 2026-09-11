@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import com.ferbo.gestion.api.config.SpringEntityManagerProvider;
 import com.ferbo.gestion.api.dto.ConstanciaDepositoDTO;
+import com.ferbo.gestion.api.dto.KardexFiltroDTO;
 import com.ferbo.gestion.api.exception.GestionApiException;
 import com.ferbo.gestion.api.idao.IConstanciaDepositoRepo;
 import com.ferbo.gestion.api.mapper.IConstanciaDepositoMapper;
@@ -42,11 +44,21 @@ public class ConstanciaDepositoSrv
         this.constanciaDepositoRepo = constanciaDepositoRepo;
     }
     
-    public List<ConstanciaDepositoDTO> buscarKardex(LocalDate fechaInicio, LocalDate fechaFin, Integer idCliente, Integer idPlanta)
+    public List<ConstanciaDepositoDTO> buscarKardex(KardexFiltroDTO filtro)
     {
-        return constanciaDepositoRepo.buscarPorKardex(fechaInicio, fechaFin, idCliente, idPlanta)
-            .stream()
-            .map(this::convertirConstanciaDeposito).collect(Collectors.toList());
+        List<ConstanciaDepositoDTO> listContanciasDepositoDTO = null;
+        
+        if(filtro.getFolioCliente() != null && !filtro.getFolioCliente().isEmpty()) {
+            listContanciasDepositoDTO = new ArrayList();
+            ConstanciaDeposito constanciaDeposito = constanciaDepositoRepo.buscarPorFolio(filtro.getFolioCliente());
+            listContanciasDepositoDTO.add(convertirConstanciaDeposito(constanciaDeposito));
+        } else{
+            listContanciasDepositoDTO = constanciaDepositoRepo.buscarPorKardex(filtro.getFechaInicio(), filtro.getFechaFin(), (filtro.getCliente() != null) ? filtro.getCliente() : null, (filtro.getPlanta() != null) ? filtro.getPlanta() : null)
+                .stream()
+                .map(this::convertirConstanciaDeposito).collect(Collectors.toList());
+        }
+        
+        return listContanciasDepositoDTO;
     }
     
     public FileResponse getPdfKardex(String folioCliente) throws IOException, GestionApiException 

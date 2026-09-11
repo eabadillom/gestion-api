@@ -33,5 +33,14 @@ public class ConstanciaDepositoRepo extends BaseDAO<ConstanciaDeposito, Integer>
                 .getResultList();
         });
     }
+
+    @Override
+    public ConstanciaDeposito buscarPorFolio(String folio) {
+        return transactManager.executeRead(em -> {
+            return em.createNamedQuery("ConstanciaDeposito.findByFolioCliente", ConstanciaDeposito.class)
+                .setParameter("folioCliente", folio)
+                .getSingleResult();
+        });
+    }
     
 }

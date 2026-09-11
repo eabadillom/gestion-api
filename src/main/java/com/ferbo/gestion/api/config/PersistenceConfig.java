@@ -7,6 +7,8 @@ import com.ferbo.gestion.api.repository.ConstanciaDepositoRepo;
 import com.ferbo.gestion.api.repository.ConstanciaSalidaRepo;
 import com.ferbo.gestion.api.repository.ControlMovilRepo;
 import com.ferbo.gestion.api.repository.PlantaRepo;
+import com.ferbo.gestion.api.repository.SalidaRepo;
+import com.ferbo.gestion.api.repository.StatusSalidaRepo;
 import com.ferbo.gestion.api.repository.UsuarioRepo;
 import com.ferbo.gestion.core.dao.cliente.detalle.CandadoSalidaDAO;
 import org.springframework.context.annotation.Bean;
@@ -53,6 +55,16 @@ public class PersistenceConfig
     @Bean
     public PlantaRepo plantaRepo(SpringTransactManager transactManager){
         return new PlantaRepo(transactManager);
+    }
+    
+    @Bean
+    public SalidaRepo salidaRepo(SpringTransactManager transactManager) {
+        return new SalidaRepo(transactManager);
+    }
+    
+    @Bean
+    public StatusSalidaRepo statusSalidaRepo(SpringTransactManager transactManager) {
+        return new StatusSalidaRepo(transactManager);
     }
     
     @Bean
