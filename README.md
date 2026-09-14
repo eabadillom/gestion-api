@@ -31,12 +31,13 @@ Para la ocupación de camaras son tres formas usando el mismo end-point: la prim
 Para el reporte de ocupación de camaras son tres formas usando el mismo end-point con un numero de usuario y fecha, ademas de lo siguiente: la primera es con todos los clientes, la segunda es con un cliente, y la última es para varios clientes.
 
 ### Kardex
-* /movil/constancias/kardex/{fechaInicio}/{fechaFin}
-* /movil/constancias/kardex/{fechaInicio}/{fechaFin}?cliente=6
-* /movil/constancias/kardex/{fechaInicio}/{fechaFin}?cliente=6&planta=1
+* /movil/constancias/kardex?fechaInicio?fechaFin
+* /movil/constancias/kardex?fechaInicio?fechaFin?cliente=6
+* /movil/constancias/kardex?fechaInicio?fechaFin?cliente=6&planta=1
+* /movil/constancias/kardex?folioCliente
 
 #### Nota
-Para la consulta del kardex son tres formas usando el mismo end-point con una fecha de inicio y una fin, ademas de lo siguiente: la primera es con todos los clientes y plantas, la segunda es con un cliente y todas las plantas, y la última es con un cliente y una planta.
+Para la consulta del kardex son 4 formas usando el mismo end-point con una fecha de inicio y una fin, ademas de lo siguiente: la primera es con todos los clientes y plantas, la segunda es con un cliente y todas las plantas, con un cliente y una planta y la última opción es mandando solo el folio del cliente.
 
 ### Reporte de Kardex
 * /movil/reporte/kardex/{folioCliente}
@@ -81,6 +82,25 @@ Para obtener el candado de salida solo es pasarle el identificador del cliente p
 
 #### Nota
 Para actualizar el candado de salida solo es pasarle el identificador del candado y el objeto del candado
+
+### Ordenes de retiro
+* /movil/salidas?fechaInicio?fechaFin
+* /movil/salidas?fechaInicio?fechaFin?idCliente
+
+#### Nota
+Para obtener la lista de ordenes de retiro se puede solo mandar los parametros del periodo que son la fecha de inicio y fin para obtener la de todos los clientes, si se necesita especificar de un solo cliente mandar el parametro idCliente.
+
+### Detalle orden de retiro
+* /movil/salidas?idSalida
+
+#### Nota
+Para obtener el detalle de 1 orden de retiro solo se necesita mandar el id de la salida a solicitar.
+
+### Cancelar orden de retiro
+* /movil/salida/{idSalida}/cancelar
+
+#### Nota
+Para cancelar la orden de salida se necesita mandar el id de la salida para poder cancelarla.
 
 ## Actualización de JDK
 Para cambiar de version de java 8 a java 11 o 17 hacer esto en la clase 'SecurityConfig':

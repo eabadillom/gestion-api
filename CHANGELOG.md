@@ -5,6 +5,10 @@ Todos los cambios importantes en este proyecto serán documentados en este archi
 Este proyecto sigue versionado semántico (SemVer) y el formato de [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 ---
+## [1.0.2] - 2026-09-14
+
+### Added
+- Se agregan los endpoints para la consulta de ordenes de salida, ademas de poder consultar el kardex por folio cliente
 
 ## [1.0.1] - 2026-08-19
 
