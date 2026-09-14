@@ -1,7 +1,15 @@
 package com.ferbo.gestion.api.service;
 
 import java.time.LocalDate;
+import java.util.Date;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.ferbo.gestion.api.business.SistemaAuthBL;
 import com.ferbo.gestion.api.dto.EmpleadoDTO;
 import com.ferbo.gestion.api.dto.SistemaDTO;
 import com.ferbo.gestion.api.dto.UsuarioMovilDTO;
@@ -11,13 +19,10 @@ import com.ferbo.gestion.api.repository.ControlMovilRepo;
 import com.ferbo.gestion.api.tool.SecurityTool;
 import com.ferbo.gestion.api.idao.IUsuarioRepo;
 import com.ferbo.gestion.core.model.sistema.Usuario;
-import com.ferbo.gestion.api.business.SistemaAuthBL;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
+import com.ferbo.tools.exception.RuleException;
+import com.ferbo.tools.exception.SystemException;
+import com.ferbo.tools.exception.ValidationException;
+import com.ferbo.tools.util.date.DateFormatter;
 
 @Service
 public class ControlMovilSrv 
@@ -111,7 +116,7 @@ public class ControlMovilSrv
     
     public ControlMovil asignarToken(UsuarioMovilDTO usuario, String nombreSistema, LocalDate fechaExpiracion) 
     {
-        ControlMovil token =new ControlMovil();
+        ControlMovil token = new ControlMovil();
         token.setToken(usuario.getToken());
         token.setExpiracion(fechaExpiracion);
         token.setValido(Boolean.TRUE);
@@ -131,6 +136,80 @@ public class ControlMovilSrv
         controlMovilRepo.actualizar(controlMovil);
         
         return "El proceso finalizo exitosamente";
+    }
+    
+    public ControlMovil deshabilitarPorToken(String token) {
+        
+        if (token == null || "".equalsIgnoreCase(token)) {
+            throw new ValidationException("El tokne no puede ser vacío");
+        }
+        
+        ControlMovil controlMovil = controlMovilRepo.findByToken(token);
+        
+        if (controlMovil == null) {
+            throw new SystemException("El token no se encuentra registrado en el sistema");
+        }
+        
+        if (!controlMovil.getValido()) {
+            throw new RuleException("El token ya se encuentra desahabilitado");
+        }
+        
+        controlMovil.setValido(Boolean.FALSE);
+        
+        controlMovilRepo.actualizar(controlMovil);
+        
+        return controlMovil;
+    } 
+
+    private LocalDate calcularFechaExpiracionToken() {
+        Date expirationDate = new Date();
+
+        String expiracionString = DateFormatter.format(expirationDate, "dd-MM-yyyy");
+
+        LocalDate expiracionLocalDate = DateFormatter.parseToLocalDate(expiracionString, "dd-MM-yyyy");
+
+        LocalDate expiracion = expiracionLocalDate.plusDays(7);
+
+        return expiracion;
+    }
+
+    public ControlMovil guardarToken(String usuarioSistema, UsuarioMovilDTO usuarioMovilDTO) {
+
+        if (usuarioSistema == null || "".equalsIgnoreCase(usuarioSistema)) {
+            throw new ValidationException("El usuario del sistema no puede estar vacío");
+        }
+
+        if (usuarioMovilDTO == null) {
+            throw new ValidationException("La información del usuario movil no puede ser vacía");
+        }
+
+        String token = usuarioMovilDTO.getToken();
+
+        if (token == null || "".equalsIgnoreCase(token)) {
+            throw new RuleException("El token asignado al usuario no puede ser vaciío");
+        }
+
+        ControlMovil controlMovil = controlMovilRepo.findByUser(usuarioSistema);
+
+        if (controlMovil == null || !token.equalsIgnoreCase(controlMovil.getToken())) {
+
+            if (controlMovil != null) {
+
+                controlMovil.setValido(Boolean.FALSE);
+                controlMovilRepo.actualizar(controlMovil);
+
+            }
+
+            LocalDate expiracion = calcularFechaExpiracionToken();
+
+            ControlMovil nuevoControlMovil = asignarToken(usuarioMovilDTO, usuarioSistema, expiracion);
+
+            controlMovilRepo.guardar(nuevoControlMovil);
+
+            return nuevoControlMovil;
+        }
+
+        return controlMovil;
     }
     
 }

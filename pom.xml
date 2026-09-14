@@ -121,6 +121,11 @@
 			<artifactId>jasperreports</artifactId>
 			<version>6.20.5</version>
 		</dependency>
+		<dependency>
+			<groupId>com.ferbo</groupId>
+  			<artifactId>ferbo-tools</artifactId>
+    		<version>0.1.1-RELEASE</version>
+		</dependency>
 	</dependencies>
 
 	<build>

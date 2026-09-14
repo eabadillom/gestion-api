@@ -1,18 +1,27 @@
 package com.ferbo.gestion.api.controller;
 
-import com.ferbo.gestion.api.dto.UsuarioMovilDTO;
-import com.ferbo.gestion.api.exception.ErrorResponseBuilder;
-import com.ferbo.gestion.api.service.ControlMovilSrv;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.ferbo.gestion.api.client.SgpApiClient;
+import com.ferbo.gestion.api.dto.ControlMovilDTO;
+import com.ferbo.gestion.api.dto.SistemaDTO;
+import com.ferbo.gestion.api.dto.UsuarioMovilDTO;
+import com.ferbo.gestion.api.exception.ErrorResponseBuilder;
+import com.ferbo.gestion.api.mapper.IControlMovilMapper;
+import com.ferbo.gestion.api.model.ControlMovil;
+import com.ferbo.gestion.api.service.ControlMovilSrv;
+import com.ferbo.gestion.api.tool.SecurityTool;
 
 @RestController
 @RequestMapping("/movil")
@@ -25,7 +34,16 @@ public class MovilController
     @Autowired
     private ControlMovilSrv controlMovilSrv;
     
-    @GetMapping("/generar")
+    @Autowired
+    private SgpApiClient sgpApiClient;
+    
+    @Autowired
+    private SecurityTool securityTool;
+    
+    @Autowired
+    private IControlMovilMapper controlMovilMapper;
+    
+   /* @GetMapping("/generar")
     public ResponseEntity<?> inicioPantalla(@RequestHeader("Authorization") String authHeader, @RequestBody UsuarioMovilDTO body) {
         UsuarioMovilDTO usuario = null;
         
@@ -42,14 +60,14 @@ public class MovilController
         }
         
         return ResponseEntity.ok(usuario);
-    }
+    }*/
     
     @GetMapping("/verificar")
     public ResponseEntity<?> verificarToken() {
         return ResponseEntity.ok("Acceso autorizado");
     }
     
-    @GetMapping("/deshabilitar")
+    /*@GetMapping("/deshabilitar")
     public ResponseEntity<?> deshabilitarToken(@RequestHeader(value = "Authorization", required = true) String authHeader)
     {
         String respuesta = null;
@@ -71,6 +89,56 @@ public class MovilController
         }
 
         return ResponseEntity.ok(respuesta);
+    }*/
+    
+    @PostMapping("/generar")
+    public ResponseEntity<?> inicioPantalla(HttpServletRequest request, @RequestBody UsuarioMovilDTO body) {
+    
+        try {
+            log.info("Inicia proceso para generar el token comunicandoce con SGP-API");
+            UsuarioMovilDTO usuarioMovilDTO = sgpApiClient.generarToken(request, body);
+            log.info("Finaliza proceso para generar el token comunicandoce con SGP-API");
+
+            log.info("Inicia proceso extraer las credenciales desde las cabeceras");
+            String[] credenciales = securityTool.extractCredentials(request);
+            log.info("Finaliza proceso extraer las credenciales desde las cabeceras");
+            
+            log.info("Inicia proceso para guardar el token recibido en gestion");
+            ControlMovil controlMovil = controlMovilSrv.guardarToken(credenciales[0], usuarioMovilDTO);
+            log.info("Finaliza proceso para guardar el token recibido en gestion");
+          
+            return ResponseEntity.ok(usuarioMovilDTO);
+            
+        } catch (RuntimeException ex) {
+            log.warn("Error en tiempo de ejecución: {}", ex.getMessage(), ex);
+            return ErrorResponseBuilder.construirErrorMovil(HttpStatus.CONFLICT, "", ex);
+        } catch (Exception ex) {
+            log.error("Error desconocido: {}", ex.getMessage(), ex);
+            return ErrorResponseBuilder.construirErrorMovil(HttpStatus.BAD_GATEWAY, "Error desconocido", ex);
+        }
+        
     }
     
+    @PostMapping("/cambiarPalabra")
+    public ResponseEntity<?> cambiarPalabra(HttpServletRequest request, @RequestBody SistemaDTO body) {
+        
+        try {
+            log.info("Inicia proceso para cambiar la palabra comuinicandoce con SGP-API");
+            ControlMovilDTO controlMovilDTO = sgpApiClient.cambiarPalabra(request, body);
+            log.info("Finaliza proceso para cambiar la palabra comuinicandoce con SGP-API");
+            log.info("Inicia proceso para extraer el token de las cabeceras");
+            String token = securityTool.extractBearerToken(request);
+            log.info("Finaliza proceso para extraer el token de las cabeceras");
+            log.info("Inicia proceo para deshabilitar el token en gestion");
+            ControlMovil controlMovil = controlMovilSrv.deshabilitarPorToken(token);
+            log.info("Finaliza proceo para deshabilitar el token en gestion");
+            log.info("Inicia proceso para construir la respuesta a control movil");
+            ControlMovilDTO controlMovilInterno = controlMovilMapper.toDTO(controlMovil);
+            log.info("Finaliza proceso para construir la respuesta a control movil");
+            return ResponseEntity.ok(controlMovilInterno);
+        } catch (Exception ex) {
+            log.warn("Error: {}", ex.getMessage(), ex);
+            return ErrorResponseBuilder.construirErrorDesdeApiToMovil(ex);
+        }
+    }
 }
