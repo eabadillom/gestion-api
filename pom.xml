@@ -23,7 +23,7 @@
 		<dependency>
 			<groupId>com.ferbo</groupId>
 			<artifactId>gestion-core</artifactId>
-			<version>1.0.2-SNAPSHOT</version>
+			<version>1.0.2-RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>com.ferbo</groupId>
