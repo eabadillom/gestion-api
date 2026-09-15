@@ -3,6 +3,7 @@ package com.ferbo.gestion.api.controller;
 import java.time.LocalDate;
 import java.util.List;
 import com.ferbo.gestion.api.dto.ConstanciaDepositoDTO;
+import com.ferbo.gestion.api.dto.KardexFiltroDTO;
 import com.ferbo.gestion.api.exception.ErrorResponseBuilder;
 import com.ferbo.gestion.api.exception.GestionApiException;
 import com.ferbo.gestion.api.response.FileResponse;
@@ -12,6 +13,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,16 +33,14 @@ public class ConstanciaDepositoController
     private ConstanciaDepositoSrv constanciaDepositoSrv;
     
     /*Metodo para obtener las consultas del kardex*/
-    @GetMapping(value = "/constancias/kardex/{fechaInicio}/{fechaFin}", produces = "application/json")
-    public ResponseEntity<?> obtenerKardex(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio, 
-        @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin, @RequestParam(required = false) Integer cliente, 
-        @RequestParam(required = false) Integer planta) 
+    @GetMapping(value = "/constancias/kardex", produces = "application/json")
+    public ResponseEntity<?> obtenerKardex(@ModelAttribute KardexFiltroDTO filtro) 
     {
         List<ConstanciaDepositoDTO> listConstanciaDeposito = null;
         
         try {
             log.info("Inicia proceso para obtener las constancia de deposito.");
-            listConstanciaDeposito = constanciaDepositoSrv.buscarKardex(fechaInicio, fechaFin, (cliente != null) ? cliente : null, (planta != null) ? planta : null);
+            listConstanciaDeposito = constanciaDepositoSrv.buscarKardex(filtro);
             log.info("Finaliza proceso para obtenerlas constancia de deposito.");
         } catch (RuntimeException rtEx) {
             log.warn("Problema al obtener las constancia de deposito.", rtEx);
