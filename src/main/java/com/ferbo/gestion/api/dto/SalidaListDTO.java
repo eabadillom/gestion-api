@@ -7,6 +7,7 @@ public class SalidaListDTO
 {
     private Integer id;
     private String folio;
+    private String nombre;
     private LocalDate fechaSalida;
     private LocalTime horaSalida;
 
@@ -27,6 +28,14 @@ public class SalidaListDTO
 
     public void setFolio(String folio) {
         this.folio = folio;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
     public LocalDate getFechaSalida() {
