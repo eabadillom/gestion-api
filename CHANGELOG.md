@@ -5,6 +5,13 @@ Todos los cambios importantes en este proyecto serán documentados en este archi
 Este proyecto sigue versionado semántico (SemVer) y el formato de [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 ---
+## [1.0.3] - 2026-09-18
+
+### Change
+- Se agrega el atributo 'nombre' al modelo SalidaListDTO para incluir el nombre del cliente en la consulta de las órdenes de retiro y en el detalle de la orden.
+- Se corrige la consulta de órdenes de retiro al seleccionar un solo cliente.
+- Se agrega el atributo 'nombre' al modelo ConstanciaDepositoDTO para incluir el nombre del cliente en la consulta de los kardex
+
 ## [1.0.2] - 2026-09-14
 
 ### Added

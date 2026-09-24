@@ -10,12 +10,14 @@ public interface ISalidaListMapper
 {
     @Mapping(source = "id", target = "id")
     @Mapping(source = "folio", target = "folio")
+    @Mapping(source = "cliente.nombre", target = "nombre")
     @Mapping(source = "fechaSalida", target = "fechaSalida")
     @Mapping(source = "horaSalida", target = "horaSalida")
     SalidaListDTO toDTO(Salida salida);
     
     @Mapping(source = "id", target = "id")
     @Mapping(source = "folio", target = "folio")
+    @Mapping(source = "nombre", target = "cliente.nombre")
     @Mapping(source = "fechaSalida", target = "fechaSalida")
     @Mapping(source = "horaSalida", target = "horaSalida")
     Salida toEntity(SalidaListDTO salidaDTO);
