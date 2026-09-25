@@ -23,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
+@Deprecated 
 @Service
 public class SistemaAuthBL extends AbstractGestionApiBL
 {
@@ -46,7 +47,7 @@ public class SistemaAuthBL extends AbstractGestionApiBL
             String context = String.format("/sgp-api/movil/sistema/%s", username);
             url = String.join("", host, context);
             
-            request = createGetRequest(url);
+            request = createGetReuest(url);
             response = httpClient.execute(request);
             httpStatus = response.getStatusLine().getStatusCode();
             
