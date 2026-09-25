@@ -62,4 +62,13 @@ public class SecurityTool
 
         return token;
     }
+
+    public String generarBasicAuth(String usuario, String contrasena) {
+        String credentials = usuario + ":" + contrasena;
+
+        String encoded = Base64.getEncoder()
+            .encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
+
+        return "Basic " + encoded;
+    }
 }

@@ -1,28 +1,25 @@
 package com.ferbo.gestion.api.service;
 
 import java.time.LocalDate;
-import java.util.Date;
+import java.time.ZoneId;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ferbo.gestion.api.business.SistemaAuthBL;
 import com.ferbo.gestion.api.dto.EmpleadoDTO;
-import com.ferbo.gestion.api.dto.SistemaDTO;
 import com.ferbo.gestion.api.dto.UsuarioMovilDTO;
 import com.ferbo.gestion.api.exception.GestionApiException;
+import com.ferbo.gestion.api.idao.IUsuarioRepo;
 import com.ferbo.gestion.api.model.ControlMovil;
 import com.ferbo.gestion.api.repository.ControlMovilRepo;
 import com.ferbo.gestion.api.tool.SecurityTool;
-import com.ferbo.gestion.api.idao.IUsuarioRepo;
-import com.ferbo.gestion.core.model.sistema.Usuario;
 import com.ferbo.tools.exception.RuleException;
 import com.ferbo.tools.exception.SystemException;
+import com.ferbo.tools.exception.ToolException;
 import com.ferbo.tools.exception.ValidationException;
-import com.ferbo.tools.util.date.DateFormatter;
 
 @Service
 public class ControlMovilSrv 
@@ -44,8 +41,7 @@ public class ControlMovilSrv
         this.usuarioDAO = usuarioDAO;
     }
     
-    public UsuarioMovilDTO obtenerUsuario(String authHeader, UsuarioMovilDTO body) throws GestionApiException 
-    {
+   /*  public UsuarioMovilDTO obtenerUsuario(String authHeader, UsuarioMovilDTO body) throws GestionApiException {
         UsuarioMovilDTO usuarioDTO = null;
         
         LocalDate hoy = LocalDate.now();
@@ -98,7 +94,7 @@ public class ControlMovilSrv
         log.info("Finaliza proceso de para notificar del token existente");
         
         return usuarioDTO;
-    }
+    }*/
     
     public UsuarioMovilDTO asignarUsuarioMovil(EmpleadoDTO empleado, ControlMovil token)
     {
@@ -114,7 +110,7 @@ public class ControlMovilSrv
         return usuario;
     }
     
-    public ControlMovil asignarToken(UsuarioMovilDTO usuario, String nombreSistema, LocalDate fechaExpiracion) 
+    /*public ControlMovil asignarToken(UsuarioMovilDTO usuario, String nombreSistema, LocalDate fechaExpiracion) 
     {
         ControlMovil token = new ControlMovil();
         token.setToken(usuario.getToken());
@@ -123,7 +119,7 @@ public class ControlMovilSrv
         token.setUsuarioSistema(nombreSistema);
         
         return token;
-    }
+    }*/
     
     public String deshabilitarToken(String authHeader) throws GestionApiException 
     {
@@ -161,55 +157,130 @@ public class ControlMovilSrv
         return controlMovil;
     } 
 
-    private LocalDate calcularFechaExpiracionToken() {
-        Date expirationDate = new Date();
+    public synchronized void deshabilitarPorDemanda(ControlMovil controlMovil) {
 
-        String expiracionString = DateFormatter.format(expirationDate, "dd-MM-yyyy");
+        if (controlMovil == null) {
+            throw new ValidationException("El control movil a deshabilitar no puede ser vacío");
+        }
 
-        LocalDate expiracionLocalDate = DateFormatter.parseToLocalDate(expiracionString, "dd-MM-yyyy");
+        if (!controlMovil.getValido()) {
+            throw new RuleException("El token ya se encuentra desahabilitado");
+        }
 
-        LocalDate expiracion = expiracionLocalDate.plusDays(7);
+        controlMovil.setValido(Boolean.FALSE);
 
-        return expiracion;
+        controlMovilRepo.actualizar(controlMovil);
+
+
     }
 
-    public ControlMovil guardarToken(String usuarioSistema, UsuarioMovilDTO usuarioMovilDTO) {
+    private LocalDate calcularFechaExpiracionToken() {
+        return LocalDate.now(ZoneId.of("America/Mexico_City")).plusDays(7);
+    }
 
-        if (usuarioSistema == null || "".equalsIgnoreCase(usuarioSistema)) {
-            throw new ValidationException("El usuario del sistema no puede estar vacío");
+    private ControlMovil crearNuevoControlMovil(String token, String usuarioSistema) {
+        ControlMovil controlMovil = new ControlMovil();
+            controlMovil.setToken(token);
+            controlMovil.setUsuarioSistema(usuarioSistema);
+            LocalDate fechaExpiracion = calcularFechaExpiracionToken(); 
+            controlMovil.setExpiracion(fechaExpiracion);
+            controlMovil.setValido(Boolean.TRUE);
+            return controlMovil;
+    }
+
+    public synchronized ControlMovil construirUsuarioMovilCompleto(
+            String usuarioSistema,
+            UsuarioMovilDTO usuarioMovilDTO,
+            String token) {
+
+        if (usuarioSistema == null || usuarioSistema.trim().isEmpty()) {
+            throw new ValidationException(
+                    "El usuario del sistema no puede estar vacío");
         }
 
         if (usuarioMovilDTO == null) {
-            throw new ValidationException("La información del usuario movil no puede ser vacía");
+            throw new ValidationException(
+                    "La información del usuario móvil no puede estar vacía");
         }
 
-        String token = usuarioMovilDTO.getToken();
-
-        if (token == null || "".equalsIgnoreCase(token)) {
-            throw new RuleException("El token asignado al usuario no puede ser vaciío");
+        if (token == null || token.trim().isEmpty()) {
+            throw new ValidationException(
+                    "El token del usuario no puede estar vacío");
         }
 
         ControlMovil controlMovil = controlMovilRepo.findByUser(usuarioSistema);
 
-        if (controlMovil == null || !token.equalsIgnoreCase(controlMovil.getToken())) {
+        if (controlMovil == null || !controlMovil.getValido()) {
+            return crearNuevoControlMovil(token, usuarioSistema);
+        }
 
-            if (controlMovil != null) {
+        LocalDate hoy = LocalDate.now(
+                ZoneId.of("America/Mexico_City"));
 
-                controlMovil.setValido(Boolean.FALSE);
-                controlMovilRepo.actualizar(controlMovil);
+        if (controlMovil.getExpiracion().isBefore(hoy)) {
+            deshabilitarPorDemanda(controlMovil);
 
-            }
-
-            LocalDate expiracion = calcularFechaExpiracionToken();
-
-            ControlMovil nuevoControlMovil = asignarToken(usuarioMovilDTO, usuarioSistema, expiracion);
-
-            controlMovilRepo.guardar(nuevoControlMovil);
-
-            return nuevoControlMovil;
+            return crearNuevoControlMovil(token, usuarioSistema);
         }
 
         return controlMovil;
     }
+
+    public synchronized ControlMovil guardarControlMovil(ControlMovil controlMovil) {
+
+        if (controlMovil == null) {
+            throw  new ValidationException("El control movil a guardar no pueder ser vacío");
+        }
+
+        if (controlMovil.getId() == null) {
+            controlMovilRepo.guardar(controlMovil);
+        }
+
+        return  controlMovil;
+    }
     
+
+    public UsuarioMovilDTO completarUsuarioMovil(UsuarioMovilDTO usuario, ControlMovil controlMovil, int perfil) {
+
+        usuario.setToken(controlMovil.getToken());
+        usuario.setRefreshToken(controlMovil.getToken());
+        usuario.setPerfil(perfil);
+
+        return usuario;
+    }
+
+    public int extrarPerfilDelUsuarioDesdeToken(UsuarioMovilDTO usuarioMovilDTO) {
+
+        if (usuarioMovilDTO == null) {
+            throw new ValidationException("El usuario movil no puede ser vacío");
+        }
+
+        int perfil = -1;
+
+        try {
+            perfil = Integer.parseInt(usuarioMovilDTO.getToken());
+            usuarioMovilDTO.setToken(null);
+        } catch (NumberFormatException e) {
+            throw new ToolException("El texto recibido no es un número válido.");
+        }
+        return perfil;
+    }
+
+    public  String obtenerSistemaPorToken(String token) {
+
+        if (token == null || token.trim().isEmpty()) {
+            throw new ValidationException("El token no puede ser vacío");
+        }
+
+        ControlMovil controlMovil = controlMovilRepo.findByToken(token);
+
+        if (controlMovil == null) {
+            throw new RuleException("El toke recibido no se encuentra registrado en el sistema");
+        }
+
+        String sistema = controlMovil.getUsuarioSistema();
+
+        return  sistema;
+
+    }
 }
