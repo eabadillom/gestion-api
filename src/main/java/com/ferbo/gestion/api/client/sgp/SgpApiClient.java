@@ -20,6 +20,11 @@ import com.ferbo.tools.exception.SystemException;
 import com.ferbo.tools.exception.ToolException;
 import com.ferbo.tools.exception.ValidationException;
 
+/**
+ * Cliente encargado de gestionar la comunicación con la API de [SGP].
+ * Proporciona las operaciones necesarias para autenticar los dispositivos
+ * moviles que usan la api de gestión al servicio externo.
+ */
 @Component
 public class SgpApiClient {
 
