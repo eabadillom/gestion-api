@@ -99,7 +99,6 @@ public class ControlMovilSrv {
         return usuarioDTO;
     }
 
-    @Deprecated
     public UsuarioMovilDTO asignarUsuarioMovil(EmpleadoDTO empleado, ControlMovil token) {
         UsuarioMovilDTO usuario = new UsuarioMovilDTO();
         usuario.setNumeroUsuario(empleado.getNumero());
@@ -113,7 +112,6 @@ public class ControlMovilSrv {
         return usuario;
     }
 
-    @Deprecated
     public ControlMovil asignarToken(UsuarioMovilDTO usuario, String nombreSistema, LocalDate fechaExpiracion) {
         ControlMovil token = new ControlMovil();
         token.setToken(usuario.getToken());
