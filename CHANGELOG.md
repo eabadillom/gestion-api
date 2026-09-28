@@ -5,6 +5,23 @@ Todos los cambios importantes en este proyecto serán documentados en este archi
 Este proyecto sigue versionado semántico (SemVer) y el formato de [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 ---
+
+## [1.0.4] - 2026-09-28
+
+### Added
+* Se agrega RestTemplateConfig para establecer comunicación con APIs externas que utilizan Spring Boot.
+* Se agrega SistemaApiClient como cliente para la comunicación con la API de Sistema, utilizado actualmente para la validación de dispositivos móviles.
+* En SecurityTool, se agregan métodos para la extracción y generación de credenciales.
+
+## Change 
+* En ControlMovilSrv, se agregan nuevas funciones relacionadas exclusivamente con la lógica de control móvil. Estas funciones reciben los objetos necesarios para ejecutar sus procedimientos y delegan las operaciones correspondientes a otras clases para continuar con el flujo del servicio.
+
+* Se marcan como deprecados algunos métodos de ControlMovilSrv que ya no forman parte del flujo principal.
+
+* En ControlMovilController, se agregan métodos para:
+ * Generar el token una vez validada la autenticidad de las credenciales del dispositivo móvil.
+ * Solicitar el cambio de contraseña y desactivar el token anterior.
+
 ## [1.0.3] - 2026-09-18
 
 ### Change
