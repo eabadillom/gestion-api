@@ -20,7 +20,7 @@ public class SalidaRepo extends BaseDAO<Salida, Integer> implements ISalidaRepo
     @Override
     public List<Salida> buscarPorPeriodoClientes(Integer idCliente, LocalDate fechaInicio, LocalDate fechaFin) {
         return transactManager.executeRead(em -> {
-            return em.createQuery("SELECT s FROM Salida s WHERE (:idCliente IS NULL OR s.cliente = :idCliente) AND s.fechaSalida BETWEEN :fechaInicio AND :fechaFin", Salida.class)
+            return em.createQuery("SELECT s FROM Salida s WHERE (:idCliente IS NULL OR s.cliente.id = :idCliente) AND s.fechaSalida BETWEEN :fechaInicio AND :fechaFin", Salida.class)
                 .setParameter("idCliente", idCliente)
                 .setParameter("fechaInicio", fechaInicio)
                 .setParameter("fechaFin", fechaFin)

@@ -7,6 +7,7 @@ public class ConstanciaDepositoDTO
     private Integer id;
     private LocalDate fechaIngreso;
     private String folioCliente;
+    private String nombre;
 
     public ConstanciaDepositoDTO() {
     }
@@ -33,6 +34,14 @@ public class ConstanciaDepositoDTO
 
     public void setFolioCliente(String folioCliente) {
         this.folioCliente = folioCliente;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
     
 }
