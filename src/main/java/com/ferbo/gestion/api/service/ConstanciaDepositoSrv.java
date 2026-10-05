@@ -1,5 +1,6 @@
 package com.ferbo.gestion.api.service;
 
+import com.ferbo.gestion.api.business.AbstractConsultaConstancia;
 import java.io.IOException;
 import java.sql.Connection;
 import java.time.LocalDate;
@@ -10,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import com.ferbo.gestion.api.config.SpringEntityManagerProvider;
+import com.ferbo.gestion.api.dto.ConstanciaDTO;
 import com.ferbo.gestion.api.dto.ConstanciaDepositoDTO;
 import com.ferbo.gestion.api.dto.KardexFiltroDTO;
 import com.ferbo.gestion.api.exception.GestionApiException;
@@ -59,6 +61,16 @@ public class ConstanciaDepositoSrv
         }
         
         return listContanciasDepositoDTO;
+    }
+    
+    public List<ConstanciaDTO> consultarLista(LocalDate fechaInicio, LocalDate fechaFin, Integer idCliente) 
+    {
+        return this.constanciaDepositoRepo.buscarPorParametros(fechaInicio, fechaFin, idCliente);
+    }
+    
+    public ConstanciaDTO buscarPorFolio(String folio) 
+    {
+        return this.constanciaDepositoRepo.buscarFolio(folio);
     }
     
     public FileResponse getPdfKardex(String folioCliente) throws IOException, GestionApiException 
@@ -135,5 +147,5 @@ public class ConstanciaDepositoSrv
     private ConstanciaDepositoDTO convertirConstanciaDeposito(ConstanciaDeposito constanciaDeposito){
         return iConstanciaDepositoMapper.toDTO(constanciaDeposito);
     }
-    
+
 }

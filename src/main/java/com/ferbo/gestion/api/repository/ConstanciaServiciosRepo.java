@@ -1,35 +1,29 @@
 package com.ferbo.gestion.api.repository;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import com.ferbo.gestion.api.config.SpringTransactManager;
 import com.ferbo.gestion.api.dto.ConstanciaDTO;
-import com.ferbo.gestion.api.idao.IConstanciaSalidaRepo;
+import com.ferbo.gestion.api.idao.IConstanciaServiciosRepo;
 import com.ferbo.gestion.core.commons.dao.BaseDAO;
-import com.ferbo.gestion.core.model.inventario.salida.ConstanciaSalida;
+import com.ferbo.gestion.core.model.inventario.servicio.ConstanciaServicio;
+import java.util.ArrayList;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-public class ConstanciaSalidaRepo extends BaseDAO<ConstanciaSalida, Integer> implements IConstanciaSalidaRepo
+public class ConstanciaServiciosRepo extends BaseDAO<ConstanciaServicio, Integer> implements IConstanciaServiciosRepo
 {
-    private static Logger log = LogManager.getLogger(ConstanciaSalidaRepo.class);
+    private static Logger log = LogManager.getLogger(ConstanciaTraspasoRepo.class);
     
-    public ConstanciaSalidaRepo(SpringTransactManager transactManager){
-        super(ConstanciaSalida.class, transactManager);
-    }
-
-    @Override
-    public List<ConstanciaSalida> buscarPorClientePlantaPeriodo(LocalDate fechaInicio, LocalDate fechaFin, Integer idCliente, Integer idPlanta, Integer idCanara) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public ConstanciaServiciosRepo(SpringTransactManager transactManager){
+        super(ConstanciaServicio.class, transactManager);
     }
 
     @Override
     public List<ConstanciaDTO> buscarPorParametros(LocalDate fechaInicio, LocalDate fechaFin, Integer idCliente) {
         return transactManager.executeRead(em -> {
-            List<Object[]> filas = em.createQuery("SELECT cs.id, cs.numero, cs.fecha, cl.nombre "
-                    + " FROM ConstanciaSalida cs "
-                    + " INNER JOIN cs.detalles det"
+            List<Object[]> filas = em.createQuery("SELECT cs.folio, cs.folioCliente, cs.fecha, cl.nombre "
+                    + " FROM ConstanciaServicio cs "
                     + " INNER JOIN cs.cliente cl "
                     + " WHERE (:idCliente IS NULL OR cl.id = :idCliente) "
                     + " AND (cs.fecha BETWEEN :fhInicio and :fhFin) ", Object[].class)
@@ -54,17 +48,18 @@ public class ConstanciaSalidaRepo extends BaseDAO<ConstanciaSalida, Integer> imp
     }
 
     @Override
-    public ConstanciaDTO buscarPorFolio(String folio) {
+    public ConstanciaDTO buscarPorFolio(String folio)
+    {
         return transactManager.executeRead(em -> {
-            ConstanciaSalida constanciaSalida = em.createQuery("SELECT c FROM ConstanciaSalida c WHERE c.numero = :folioCliente", ConstanciaSalida.class)
+            ConstanciaServicio constanciaServicio = em.createQuery("SELECT c FROM ConstanciaServicio c WHERE c.folioCliente = :folioCliente", ConstanciaServicio.class)
                 .setParameter("folioCliente", folio)
                 .getSingleResult();
             
             ConstanciaDTO constanciaDTO = new ConstanciaDTO();
-            constanciaDTO.setId(constanciaSalida.getId());
-            constanciaDTO.setFolioCliente(constanciaSalida.getNumero());
-            constanciaDTO.setFecha(constanciaSalida.getFecha());
-            constanciaDTO.setNombre(constanciaSalida.getNombreCte());
+            constanciaDTO.setId(constanciaServicio.getFolio());
+            constanciaDTO.setFolioCliente(constanciaServicio.getFolioCliente());
+            constanciaDTO.setFecha(constanciaServicio.getFecha());
+            constanciaDTO.setNombre(constanciaServicio.getCliente().getNombre());
             
             return constanciaDTO; 
         });
