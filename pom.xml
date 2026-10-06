@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>com.ferbo</groupId>
 	<artifactId>gestion-api</artifactId>
-	<version>1.0.3-SNAPSHOT</version>
+	<version>1.0.4-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<name>Gestion api</name>
 	<description>Api para la gestion de inventarios</description>
@@ -23,7 +23,7 @@
 		<dependency>
 			<groupId>com.ferbo</groupId>
 			<artifactId>gestion-core</artifactId>
-			<version>1.0.2-RELEASE</version>
+			<version>1.0.2-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.ferbo</groupId>
@@ -120,6 +120,11 @@
 			<groupId>net.sf.jasperreports</groupId>
 			<artifactId>jasperreports</artifactId>
 			<version>6.20.5</version>
+		</dependency>
+		<dependency>
+			<groupId>com.ferbo</groupId>
+  			<artifactId>ferbo-tools</artifactId>
+    		<version>0.1.1-RELEASE</version>
 		</dependency>
 	</dependencies>
 
