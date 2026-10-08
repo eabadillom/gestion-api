@@ -38,17 +38,16 @@ public class SgpApiClient {
     private final String password = DataSourceManager.getJndiParameter("gestionapi/password");
 
     @Value("${sgp.api.movil.segment}")
-    private String sgpApiMovilSegment;
+    private String contextPath;
 
     public SgpApiClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
-    public UsuarioMovilDTO validateMobile(
-            String mobileAuthorization, UsuarioMovilDTO body) {
+    public UsuarioMovilDTO validateMobile(String mobileAuthorization, UsuarioMovilDTO body) {
 
-        String context = sgpApiMovilSegment + "/dispositivos/verificaciones";
-        String url = String.join("", basePath, context);
+        String fullPath = (contextPath.startsWith("/") ? contextPath : "/" + contextPath) + "/dispositivos/verificaciones";
+        String url = String.join("", basePath, fullPath);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -69,8 +68,8 @@ public class SgpApiClient {
 
     public ControlMovilDTO solicitarCambiarContrasenia(String mobileAuthorization) throws RuntimeException, Exception, ValidationException, SystemException, RuleException, ToolException {
 
-        String context = sgpApiMovilSegment + "/dispositivos/cambiarPassword";
-        String url = String.join("", basePath, context);
+        String fullPath = (contextPath.startsWith("/") ? contextPath : "/" + contextPath) + "/dispositivos/cambiarPassword";
+        String url = String.join("", basePath, fullPath);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
