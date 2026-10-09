@@ -5,6 +5,30 @@ Todos los cambios importantes en este proyecto serán documentados en este archi
 Este proyecto sigue versionado semántico (SemVer) y el formato de [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 ---
+
+## [1.0.4] - 2026-09-28
+
+### Added
+* Se agrega RestTemplateConfig para establecer comunicación con APIs externas que utilizan Spring Boot.
+* Se agrega SistemaApiClient como cliente para la comunicación con la API de Sistema, utilizado actualmente para la validación de dispositivos móviles.
+* En SecurityTool, se agregan métodos para la extracción y generación de credenciales.
+
+## Change 
+* En ControlMovilSrv, se agregan nuevas funciones relacionadas exclusivamente con la lógica de control móvil. Estas funciones reciben los objetos necesarios para ejecutar sus procedimientos y delegan las operaciones correspondientes a otras clases para continuar con el flujo del servicio.
+
+* Se marcan como deprecados algunos métodos de ControlMovilSrv que ya no forman parte del flujo principal.
+
+* En ControlMovilController, se agregan métodos para:
+ * Generar el token una vez validada la autenticidad de las credenciales del dispositivo móvil.
+ * Solicitar el cambio de contraseña y desactivar el token anterior.
+
+## [1.0.3] - 2026-09-18
+
+### Change
+- Se agrega el atributo 'nombre' al modelo SalidaListDTO para incluir el nombre del cliente en la consulta de las órdenes de retiro y en el detalle de la orden.
+- Se corrige la consulta de órdenes de retiro al seleccionar un solo cliente.
+- Se agrega el atributo 'nombre' al modelo ConstanciaDepositoDTO para incluir el nombre del cliente en la consulta de los kardex
+
 ## [1.0.2] - 2026-09-14
 
 ### Added
