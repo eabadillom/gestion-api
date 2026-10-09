@@ -11,11 +11,13 @@ public interface IConstanciaDepositoMapper
     @Mapping(source = "id", target = "id")
     @Mapping(source = "fechaIngreso", target = "fechaIngreso")
     @Mapping(source = "folioCliente", target = "folioCliente")
+    @Mapping(source = "cliente.nombre", target = "nombre")
     ConstanciaDepositoDTO toDTO(ConstanciaDeposito planta);
     
     @Mapping(source = "id", target = "id")
     @Mapping(source = "fechaIngreso", target = "fechaIngreso")
     @Mapping(source = "folioCliente", target = "folioCliente")
+    @Mapping(source = "nombre", target = "cliente.nombre")
     ConstanciaDeposito toEntity(ConstanciaDepositoDTO clienteDTO);
     
 }

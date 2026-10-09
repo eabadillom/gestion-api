@@ -4,14 +4,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ferbo.gestion.api.dto.EmpleadoDTO;
-import com.ferbo.gestion.api.dto.SistemaDTO;
-import com.ferbo.gestion.api.dto.UsuarioMovilDTO;
-import com.ferbo.gestion.api.exception.GestionApiException;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -23,11 +15,24 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ferbo.gestion.api.dto.EmpleadoDTO;
+import com.ferbo.gestion.api.dto.SistemaDTO;
+import com.ferbo.gestion.api.dto.UsuarioMovilDTO;
+import com.ferbo.gestion.api.exception.GestionApiException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+/**
+ * @deprecated Se reemplaza por las herramientas proporcionadas por Spring Boot.
+ */
+@Deprecated 
 @Service
 public class SistemaAuthBL extends AbstractGestionApiBL
 {
     private static Logger log = LogManager.getLogger(SistemaAuthBL.class);
     
+    @Deprecated
     public SistemaDTO autenticaUsuario(String username) throws GestionApiException
     {
         SistemaDTO respuesta = null;
@@ -70,6 +75,7 @@ public class SistemaAuthBL extends AbstractGestionApiBL
         return respuesta;
     }
     
+    @Deprecated
     public UsuarioMovilDTO obtenerUsuario(String usuario, String contrasenia, UsuarioMovilDTO body) throws GestionApiException 
     {
         CloseableHttpResponse response = null;
@@ -122,6 +128,7 @@ public class SistemaAuthBL extends AbstractGestionApiBL
         return respuesta;
     }
     
+    @Deprecated
     public EmpleadoDTO obtenerEmpleado(String token, String numeroUsuario) throws GestionApiException 
     {
         EmpleadoDTO respuesta = null;
@@ -165,6 +172,7 @@ public class SistemaAuthBL extends AbstractGestionApiBL
         return respuesta;
     }
     
+    @Deprecated
     public String deshabilitar(String token) throws GestionApiException 
     {
         String respuesta = null;
