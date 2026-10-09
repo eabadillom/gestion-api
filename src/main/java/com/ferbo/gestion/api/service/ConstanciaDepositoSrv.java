@@ -1,6 +1,5 @@
 package com.ferbo.gestion.api.service;
 
-import com.ferbo.gestion.api.business.AbstractConsultaConstancia;
 import java.io.IOException;
 import java.sql.Connection;
 import java.time.LocalDate;
@@ -10,9 +9,11 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.persistence.NoResultException;
 import com.ferbo.gestion.api.config.SpringEntityManagerProvider;
 import com.ferbo.gestion.api.dto.ConstanciaDTO;
 import com.ferbo.gestion.api.dto.ConstanciaDepositoDTO;
+import com.ferbo.gestion.api.dto.ConstanciaDetalleDTO;
 import com.ferbo.gestion.api.dto.KardexFiltroDTO;
 import com.ferbo.gestion.api.exception.GestionApiException;
 import com.ferbo.gestion.api.idao.IConstanciaDepositoRepo;
@@ -65,12 +66,31 @@ public class ConstanciaDepositoSrv
     
     public List<ConstanciaDTO> consultarLista(LocalDate fechaInicio, LocalDate fechaFin, Integer idCliente) 
     {
-        return this.constanciaDepositoRepo.buscarPorParametros(fechaInicio, fechaFin, idCliente);
+        return this.constanciaDepositoRepo.buscarPorParametros(fechaInicio, fechaFin, idCliente)
+            .stream()
+            .map(this::convertirConstanciaDTO)
+            .collect(Collectors.toList());
     }
     
     public ConstanciaDTO buscarPorFolio(String folio) 
     {
-        return this.constanciaDepositoRepo.buscarFolio(folio);
+        ConstanciaDeposito constanciaDeposito = constanciaDepositoRepo.buscarPorFolio(folio);
+        
+        return this.convertirConstanciaDTO(constanciaDeposito);
+    }
+    
+    public ConstanciaDetalleDTO buscarConstanciaDetalle(Integer id) throws GestionApiException
+    {
+        ConstanciaDeposito constanciaDeposito = null;
+        
+        try{
+            constanciaDeposito = constanciaDepositoRepo.obtenerConstanciaDetalle(id);
+        }catch(NoResultException ex) {
+            String resultado = String.format("No se encontró la constancia con el parametro dado");
+            throw new GestionApiException(resultado);
+        } 
+        
+        return this.convertirDetalles(constanciaDeposito);
     }
     
     public FileResponse getPdfKardex(String folioCliente) throws IOException, GestionApiException 
@@ -146,6 +166,14 @@ public class ConstanciaDepositoSrv
     
     private ConstanciaDepositoDTO convertirConstanciaDeposito(ConstanciaDeposito constanciaDeposito){
         return iConstanciaDepositoMapper.toDTO(constanciaDeposito);
+    }
+    
+    private ConstanciaDTO convertirConstanciaDTO(ConstanciaDeposito constanciaDeposito){
+        return iConstanciaDepositoMapper.toListDTO(constanciaDeposito);
+    }
+    
+    private ConstanciaDetalleDTO convertirDetalles(ConstanciaDeposito constanciaDeposito) {
+        return iConstanciaDepositoMapper.toConstanciaDetalleDTO(constanciaDeposito);
     }
 
 }

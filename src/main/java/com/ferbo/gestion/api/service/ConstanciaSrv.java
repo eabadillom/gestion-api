@@ -1,7 +1,9 @@
 package com.ferbo.gestion.api.service;
 
 import com.ferbo.gestion.api.dto.ConstanciaDTO;
+import com.ferbo.gestion.api.dto.ConstanciaDetalleDTO;
 import com.ferbo.gestion.api.dto.TipoConstanciaDTO;
+import com.ferbo.gestion.api.exception.GestionApiException;
 import java.time.LocalDate;
 import java.util.EnumMap;
 import java.util.List;
@@ -12,6 +14,8 @@ import org.apache.logging.log4j.Logger;
 import com.ferbo.gestion.api.idao.IConstanciaStrategyRepo;
 import java.util.Collections;
 import javax.persistence.NoResultException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class ConstanciaSrv 
@@ -52,19 +56,38 @@ public class ConstanciaSrv
         }
         
         if (hayFolio) {
-            log.info("Buscando la constancia por el parametro de {}.", folioCliente);
+            log.info("Buscando la constancia de {} por el parametro de {}.", tipo, folioCliente);
             try {
                 ConstanciaDTO dto = e.buscarPorFolio(folioCliente.trim());
                 return dto == null ? Collections.<ConstanciaDTO>emptyList() : Collections.singletonList(dto);
             } catch (NoResultException ex) {
-                log.info("No se encontró ninguna constancia con el folio {}.", folioCliente);
                 String resultado = String.format("No se encontró ninguna constancia con el folio %s", folioCliente);
+                log.info(resultado);
                 throw new IllegalArgumentException(resultado);
             }
         } 
         
         log.info("Buscando las constancias por los parametros de idCliente: {}, fecha de inicio: {} y fecha fin: {}", idCliente, inicio, fin);
         return e.listarConstancias(idCliente, inicio, fin);
+    }
+    
+    public ConstanciaDetalleDTO obtenerDetalle(TipoConstanciaDTO tipo, Integer id) throws GestionApiException
+    {
+        IConstanciaStrategyRepo e = estrategias.get(tipo);
+        if (e == null) {
+            throw new IllegalArgumentException("Consulta no implementada para " + tipo);
+        }
+        
+        log.info("Buscando la constancia de {} por el parametro dado.", tipo);
+
+        ConstanciaDetalleDTO dto = e.buscarDetalle(id);
+        if (dto == null) {
+            String resultado = String.format("No se encontró la constancia %s con el parametro dado", tipo);
+            log.error(resultado);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, resultado);
+        }
+        
+        return dto;
     }
     
 }

@@ -3,11 +3,11 @@ package com.ferbo.gestion.api.repository;
 import java.time.LocalDate;
 import java.util.List;
 import com.ferbo.gestion.api.config.SpringTransactManager;
-import com.ferbo.gestion.api.dto.ConstanciaDTO;
 import com.ferbo.gestion.api.idao.IConstanciaServiciosRepo;
 import com.ferbo.gestion.core.commons.dao.BaseDAO;
 import com.ferbo.gestion.core.model.inventario.servicio.ConstanciaServicio;
-import java.util.ArrayList;
+import com.ferbo.gestion.core.model.inventario.servicio.ConstanciaServicioDetalle;
+import com.ferbo.gestion.core.model.inventario.servicio.PartidaServicio;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,48 +20,53 @@ public class ConstanciaServiciosRepo extends BaseDAO<ConstanciaServicio, Integer
     }
 
     @Override
-    public List<ConstanciaDTO> buscarPorParametros(LocalDate fechaInicio, LocalDate fechaFin, Integer idCliente) {
+    public List<ConstanciaServicio> buscarPorParametros(LocalDate fechaInicio, LocalDate fechaFin, Integer idCliente) {
         return transactManager.executeRead(em -> {
-            List<Object[]> filas = em.createQuery("SELECT cs.folio, cs.folioCliente, cs.fecha, cl.nombre "
+            return em.createQuery("SELECT DISTINCT cs "
                     + " FROM ConstanciaServicio cs "
                     + " INNER JOIN cs.cliente cl "
                     + " WHERE (:idCliente IS NULL OR cl.id = :idCliente) "
-                    + " AND (cs.fecha BETWEEN :fhInicio and :fhFin) ", Object[].class)
+                    + " AND (cs.fecha BETWEEN :fhInicio and :fhFin) ", ConstanciaServicio.class)
                 .setParameter("idCliente", idCliente)
                 .setParameter("fhInicio", fechaInicio)
                 .setParameter("fhFin", fechaFin)
                 .getResultList();
-            
-            List<ConstanciaDTO> resultado = new ArrayList<>();
-            
-            for (Object[] f : filas) {
-                ConstanciaDTO dto = new ConstanciaDTO();
-                dto.setId((Integer) f[0]);
-                dto.setFolioCliente((String) f[1]);
-                dto.setFecha((LocalDate) f[2]);
-                dto.setNombre((String) f[3]);
-                resultado.add(dto);
-            }
-            
-            return resultado;
         });
     }
 
     @Override
-    public ConstanciaDTO buscarPorFolio(String folio)
+    public ConstanciaServicio buscarPorFolio(String folio)
     {
         return transactManager.executeRead(em -> {
-            ConstanciaServicio constanciaServicio = em.createQuery("SELECT c FROM ConstanciaServicio c WHERE c.folioCliente = :folioCliente", ConstanciaServicio.class)
+            return em.createNamedQuery("ConstanciaServicio.findByFolioCliente", ConstanciaServicio.class)
                 .setParameter("folioCliente", folio)
                 .getSingleResult();
+        });
+    }
+
+    @Override
+    public ConstanciaServicio obtenerConstanciaDetalle(Integer id) {
+        return transactManager.executeRead(em -> {
+            ConstanciaServicio constanciaServicio = em.createQuery("SELECT DISTINCT cs "
+                    + " FROM ConstanciaServicio cs "
+                    + " INNER JOIN cs.cliente cl "
+                    + " WHERE cs.folio = :id ", ConstanciaServicio.class)
+                .setParameter("id", id)
+                .getSingleResult();
             
-            ConstanciaDTO constanciaDTO = new ConstanciaDTO();
-            constanciaDTO.setId(constanciaServicio.getFolio());
-            constanciaDTO.setFolioCliente(constanciaServicio.getFolioCliente());
-            constanciaDTO.setFecha(constanciaServicio.getFecha());
-            constanciaDTO.setNombre(constanciaServicio.getCliente().getNombre());
+            if(!constanciaServicio.getServicios().isEmpty()) {
+                for(ConstanciaServicioDetalle servicioDetalle : constanciaServicio.getServicios()) {
+                    log.debug(servicioDetalle);
+                }
+            }
             
-            return constanciaDTO; 
+            if(!constanciaServicio.getPartidas().isEmpty()) {
+                for(PartidaServicio partidaServicio : constanciaServicio.getPartidas()) {
+                    log.debug(partidaServicio);
+                }
+            }
+            
+            return constanciaServicio;
         });
     }
     

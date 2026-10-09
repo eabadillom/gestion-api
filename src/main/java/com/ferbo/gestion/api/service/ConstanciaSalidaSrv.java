@@ -2,17 +2,23 @@ package com.ferbo.gestion.api.service;
 
 import com.ferbo.gestion.api.config.SpringEntityManagerProvider;
 import com.ferbo.gestion.api.dto.ConstanciaDTO;
+import com.ferbo.gestion.api.dto.ConstanciaDetalleDTO;
 import com.ferbo.gestion.api.exception.GestionApiException;
 import com.ferbo.gestion.api.idao.IConstanciaSalidaRepo;
+import com.ferbo.gestion.api.mapper.IConstanciaSalidaMapper;
 import com.ferbo.gestion.api.response.FileResponse;
+import com.ferbo.gestion.core.model.inventario.salida.ConstanciaSalida;
 import com.ferbo.gestion.reports.jasper.ReporteSalidasJR;
 import java.io.IOException;
 import java.sql.Connection;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+import javax.persistence.NoResultException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +33,9 @@ public class ConstanciaSalidaSrv
     
     @Autowired
     private SpringEntityManagerProvider entityManagerProvider;
+    
+    @Autowired
+    private IConstanciaSalidaMapper iConstanciaSalidaMapper;
     
     private ReporteSalidasJR reporteSalidasJR;
 
@@ -71,14 +80,43 @@ public class ConstanciaSalidaSrv
         return pdfResponse;
     }
     
-    public List<ConstanciaDTO> consultarListas(LocalDate fechaInicio, LocalDate fechaFin, Integer idCliente) 
-    {
-        return this.constanciaSalidaRepo.buscarPorParametros(fechaInicio, fechaFin, idCliente);
-    }
-    
     public ConstanciaDTO buscarPorFolio(String folio) 
     {
-        return this.constanciaSalidaRepo.buscarPorFolio(folio);
+        ConstanciaSalida constanciaSalida = this.constanciaSalidaRepo.buscarPorFolio(folio);
+        
+        return this.iConstanciaSalidaMapper.toConstanciaDTO(constanciaSalida);
+    }
+    
+    public List<ConstanciaDTO> consultarListas(LocalDate fechaInicio, LocalDate fechaFin, Integer idCliente) 
+    {
+        return this.constanciaSalidaRepo.buscarPorParametros(fechaInicio, fechaFin, idCliente)
+            .stream()
+            .map(this::convertirConstanciaDTO)
+            .collect(Collectors.toList());
+    }
+    
+    public ConstanciaDetalleDTO buscarConstanciaDetalle(Integer id) throws GestionApiException
+    {
+        ConstanciaSalida constanciaSalida = null;
+        
+        try{
+            constanciaSalida = constanciaSalidaRepo.obtenerConstanciaDetalle(id);
+        }catch(NoResultException ex) {
+            String resultado = String.format("No se encontró la constancia con el parametro dado");
+            throw new GestionApiException(resultado);
+        }
+        
+        return convertirDetalles(constanciaSalida);
+    }
+    
+    private ConstanciaDTO convertirConstanciaDTO(ConstanciaSalida constanciaDeposito) 
+    {
+        return iConstanciaSalidaMapper.toConstanciaDTO(constanciaDeposito);
+    }
+    
+    private ConstanciaDetalleDTO convertirDetalles(ConstanciaSalida constanciaDeposito) 
+    {
+        return iConstanciaSalidaMapper.toConstanciaDetalleDTO(constanciaDeposito);
     }
     
 }

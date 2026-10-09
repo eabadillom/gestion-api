@@ -1,15 +1,15 @@
 package com.ferbo.gestion.api.repository;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.ferbo.gestion.api.config.SpringTransactManager;
-import com.ferbo.gestion.api.dto.ConstanciaDTO;
 import com.ferbo.gestion.api.idao.IConstanciaSalidaRepo;
 import com.ferbo.gestion.core.commons.dao.BaseDAO;
 import com.ferbo.gestion.core.model.inventario.salida.ConstanciaSalida;
+import com.ferbo.gestion.core.model.inventario.salida.ConstanciaSalidaServicio;
+import com.ferbo.gestion.core.model.inventario.salida.DetalleConstanciaSalida;
 
 public class ConstanciaSalidaRepo extends BaseDAO<ConstanciaSalida, Integer> implements IConstanciaSalidaRepo
 {
@@ -25,48 +25,56 @@ public class ConstanciaSalidaRepo extends BaseDAO<ConstanciaSalida, Integer> imp
     }
 
     @Override
-    public List<ConstanciaDTO> buscarPorParametros(LocalDate fechaInicio, LocalDate fechaFin, Integer idCliente) {
+    public List<ConstanciaSalida> buscarPorParametros(LocalDate fechaInicio, LocalDate fechaFin, Integer idCliente) {
         return transactManager.executeRead(em -> {
-            List<Object[]> filas = em.createQuery("SELECT cs.id, cs.numero, cs.fecha, cl.nombre "
+            return em.createQuery("SELECT DISTINCT cs "
                     + " FROM ConstanciaSalida cs "
                     + " INNER JOIN cs.detalles det"
                     + " INNER JOIN cs.cliente cl "
                     + " WHERE (:idCliente IS NULL OR cl.id = :idCliente) "
-                    + " AND (cs.fecha BETWEEN :fhInicio and :fhFin) ", Object[].class)
+                    + " AND (cs.fecha BETWEEN :fhInicio and :fhFin) ", ConstanciaSalida.class)
                 .setParameter("idCliente", idCliente)
                 .setParameter("fhInicio", fechaInicio)
                 .setParameter("fhFin", fechaFin)
                 .getResultList();
-            
-            List<ConstanciaDTO> resultado = new ArrayList<>();
-            
-            for (Object[] f : filas) {
-                ConstanciaDTO dto = new ConstanciaDTO();
-                dto.setId((Integer) f[0]);
-                dto.setFolioCliente((String) f[1]);
-                dto.setFecha((LocalDate) f[2]);
-                dto.setNombre((String) f[3]);
-                resultado.add(dto);
-            }
-            
-            return resultado;
         });
     }
 
     @Override
-    public ConstanciaDTO buscarPorFolio(String folio) {
+    public ConstanciaSalida buscarPorFolio(String folio) {
         return transactManager.executeRead(em -> {
-            ConstanciaSalida constanciaSalida = em.createQuery("SELECT c FROM ConstanciaSalida c WHERE c.numero = :folioCliente", ConstanciaSalida.class)
-                .setParameter("folioCliente", folio)
+            return em.createNamedQuery("ConstanciaSalida.findByNumero", ConstanciaSalida.class)
+                .setParameter("numero", folio)
+                .getSingleResult(); 
+        });
+    }
+    
+    @Override
+    public ConstanciaSalida obtenerConstanciaDetalle(Integer id) {
+        return transactManager.executeRead(em -> {
+            ConstanciaSalida constanciaSalida = em.createQuery("SELECT DISTINCT cs "
+                    + " FROM ConstanciaSalida cs "
+                    + " INNER JOIN cs.cliente cl "
+                    + " WHERE cs.id = :id ", ConstanciaSalida.class)
+                .setParameter("id", id)
                 .getSingleResult();
             
-            ConstanciaDTO constanciaDTO = new ConstanciaDTO();
-            constanciaDTO.setId(constanciaSalida.getId());
-            constanciaDTO.setFolioCliente(constanciaSalida.getNumero());
-            constanciaDTO.setFecha(constanciaSalida.getFecha());
-            constanciaDTO.setNombre(constanciaSalida.getNombreCte());
+            for(DetalleConstanciaSalida detalleConstanciaSalida : constanciaSalida.getDetalles())
+            {
+                log.debug(detalleConstanciaSalida);
+                log.debug(detalleConstanciaSalida.getPartida());
+                log.debug(detalleConstanciaSalida.getPartida().getTarima());
+            }
             
-            return constanciaDTO; 
+            if(!constanciaSalida.getServicios().isEmpty())
+            {
+                for(ConstanciaSalidaServicio constanciaSalidaServicio : constanciaSalida.getServicios())
+                {
+                    log.debug(constanciaSalidaServicio.toString());
+                }
+            }
+            
+            return constanciaSalida;
         });
     }
     

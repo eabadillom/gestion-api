@@ -2,10 +2,11 @@ package com.ferbo.gestion.api.idao;
 
 import java.time.LocalDate;
 import java.util.List;
-import com.ferbo.gestion.api.dto.ConstanciaDTO;
+import com.ferbo.gestion.core.model.inventario.traspaso.ConstanciaTraspaso;
 
 public interface IConstanciaTraspasoRepo 
 {
-    List<ConstanciaDTO> buscarPorParametros(LocalDate fechaInicio, LocalDate fechaFin, Integer idCliente);
-    ConstanciaDTO buscarPorFolio(String folio);
+    List<ConstanciaTraspaso> buscarPorParametros(LocalDate fechaInicio, LocalDate fechaFin, Integer idCliente);
+    ConstanciaTraspaso buscarPorFolio(String folio);
+    ConstanciaTraspaso obtenerConstanciaDetalle(Integer id);
 }

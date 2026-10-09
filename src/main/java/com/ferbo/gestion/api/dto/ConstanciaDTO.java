@@ -12,13 +12,6 @@ public class ConstanciaDTO
     public ConstanciaDTO() {
     }
 
-    public ConstanciaDTO(Integer id, String folioCliente, LocalDate fecha, String nombre) {
-        this.id = id;
-        this.folioCliente = folioCliente;
-        this.fecha = fecha;
-        this.nombre = nombre;
-    }
-
     public Integer getId() {
         return id;
     }

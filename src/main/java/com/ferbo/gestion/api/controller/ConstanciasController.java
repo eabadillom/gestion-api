@@ -29,15 +29,15 @@ public class ConstanciasController
     @Autowired
     private ConstanciaSrv constanciaSrv;
     
-    @GetMapping("constancia/listar/{tipo}")
-    public ResponseEntity<?> listar(@PathVariable(required = false) TipoConstanciaDTO tipo, @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio, 
+    @GetMapping("/constancia/listar/{tipo}")
+    public ResponseEntity<?> listar(@PathVariable(required = true) TipoConstanciaDTO tipo, @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio, 
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin, @RequestParam(required = false) Integer idCliente, @RequestParam(required = false) String folioCliente) 
     {
         List<ConstanciaDTO> listConstancias = null;
         try{
-            log.info("Inicia proceso para obtener las constancia de deposito.");
+            log.info("Inicia proceso para obtener las constancia.");
             listConstancias = constanciaSrv.listarConstancias(tipo, idCliente, fechaInicio, fechaFin, folioCliente);
-            log.info("Inicia proceso para obtener las constancia de deposito.");
+            log.info("Inicia proceso para obtener las constancia.");
         } catch (RuntimeException ex) {
             log.warn("Hubo un problema al obtener los datos. {}", ex);
             return ErrorResponseBuilder.construirErrorMovil(HttpStatus.NOT_FOUND, TIPO_ERROR_ACCESO, ex);
@@ -46,6 +46,26 @@ public class ConstanciasController
             return ErrorResponseBuilder.construirErrorMovil(HttpStatus.INTERNAL_SERVER_ERROR, TIPO_ERROR_ACCESO, ex);
         }
         return ResponseEntity.ok(listConstancias);
+    }
+    
+    @GetMapping(value = "/constancia/detalle/{tipo}", produces = "application/json")
+    public ResponseEntity<?> obtenerPorIdSalida(@PathVariable(required = true) TipoConstanciaDTO tipo, @RequestParam(required = true) Integer idConstancia)
+    {
+        ConstanciaDTO detalleConstancia = null;
+        
+        try{
+            log.info("Inicia proceso para obtener la constancia.");
+            detalleConstancia = constanciaSrv.obtenerDetalle(tipo, idConstancia);
+            log.info("Finaliza proceso para obtener la constancia.");
+        } catch (RuntimeException rtEx) {
+            log.warn("Problema al obtener la constancia.", rtEx);
+            return ErrorResponseBuilder.construirErrorMovil(HttpStatus.NOT_FOUND, TIPO_ERROR_ACCESO, rtEx);
+        } catch (Exception ex) {
+            log.error("Problema desconocido al obtener la constancia.", ex);
+            return ErrorResponseBuilder.construirErrorMovil(HttpStatus.NOT_FOUND, TIPO_ERROR_ACCESO, ex);
+        }
+        
+        return ResponseEntity.ok(detalleConstancia);
     }
     
 }

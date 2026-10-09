@@ -1,15 +1,15 @@
 package com.ferbo.gestion.api.repository;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.ferbo.gestion.api.config.SpringTransactManager;
-import com.ferbo.gestion.api.dto.ConstanciaDTO;
 import com.ferbo.gestion.api.idao.IConstanciaDepositoRepo;
 import com.ferbo.gestion.core.commons.dao.BaseDAO;
 import com.ferbo.gestion.core.model.inventario.entrada.ConstanciaDeposito;
+import com.ferbo.gestion.core.model.inventario.entrada.ConstanciaDepositoDetalle;
+import com.ferbo.gestion.core.model.inventario.entrada.Partida;
 
 public class ConstanciaDepositoRepo extends BaseDAO<ConstanciaDeposito, Integer> implements IConstanciaDepositoRepo
 {
@@ -47,49 +47,45 @@ public class ConstanciaDepositoRepo extends BaseDAO<ConstanciaDeposito, Integer>
     }
 
     @Override
-    public List<ConstanciaDTO> buscarPorParametros(LocalDate fechaInicio, LocalDate fechaFin, Integer idCliente) {
+    public List<ConstanciaDeposito> buscarPorParametros(LocalDate fechaInicio, LocalDate fechaFin, Integer idCliente) {
         return transactManager.executeRead(em -> {
-            List<Object[]> filas = em.createQuery("SELECT c.id, c.folioCliente, c.fechaIngreso, cl.nombre "
+            return em.createQuery("SELECT DISTINCT c "
                     + " FROM ConstanciaDeposito c "
                     + " INNER JOIN c.cliente cl "
                     + " WHERE (:idCliente IS NULL OR cl.id = :idCliente) "
-                    + " AND (c.fechaIngreso BETWEEN :fhInicio and :fhFin) ", Object[].class)
+                    + " AND (c.fechaIngreso BETWEEN :fhInicio and :fhFin) ", ConstanciaDeposito.class)
                 .setParameter("idCliente", idCliente)
                 .setParameter("fhInicio", fechaInicio)
                 .setParameter("fhFin", fechaFin)
-                .getResultList();
-            
-            List<ConstanciaDTO> resultado = new ArrayList<>();
-            
-            for (Object[] f : filas) {
-                ConstanciaDTO dto = new ConstanciaDTO();
-                dto.setId((Integer) f[0]);
-                dto.setFolioCliente((String) f[1]);
-                dto.setFecha((LocalDate) f[2]);
-                dto.setNombre((String) f[3]);
-                resultado.add(dto);
-            }
-            
-            return resultado;
+                .getResultList(); 
         });
     }
 
     @Override
-    public ConstanciaDTO buscarFolio(String folio) 
+    public ConstanciaDeposito obtenerConstanciaDetalle(Integer id) 
     {
-        log.info("Folio del cliente: {}", folio);
         return transactManager.executeRead(em -> {
-            ConstanciaDeposito constanciaDeposito = em.createQuery("SELECT c FROM ConstanciaDeposito c WHERE c.folioCliente = :folioCliente", ConstanciaDeposito.class)
-                .setParameter("folioCliente", folio)
+            ConstanciaDeposito constancia = em.createQuery("SELECT DISTINCT c "
+                    + " FROM ConstanciaDeposito c "
+                    + " INNER JOIN c.partidas pr "
+                    + " INNER JOIN pr.tarima t "
+                    + " INNER JOIN pr.unidadProducto up "
+                    + " INNER JOIN up.producto p "
+                    + " INNER JOIN up.unidadManejo um "
+                    + " INNER JOIN c.cliente cl "
+                    + " WHERE c.id = :id ", ConstanciaDeposito.class)
+                .setParameter("id", id)
                 .getSingleResult();
             
-            ConstanciaDTO constanciaDTO = new ConstanciaDTO();
-            constanciaDTO.setId(constanciaDeposito.getId());
-            constanciaDTO.setFolioCliente(constanciaDeposito.getFolioCliente());
-            constanciaDTO.setFecha(constanciaDeposito.getFechaIngreso());
-            constanciaDTO.setNombre(constanciaDeposito.getCliente().getNombre());
+            for(Partida partida :constancia.getPartidas()) {
+                log.debug(partida);
+            }
             
-            return constanciaDTO; 
+            for(ConstanciaDepositoDetalle detalle : constancia.getServicios()) {
+                log.debug(detalle);
+            }
+            
+            return constancia;
         });
     }
     
