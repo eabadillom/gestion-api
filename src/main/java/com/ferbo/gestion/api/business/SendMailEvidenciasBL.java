@@ -174,7 +174,7 @@ public class SendMailEvidenciasBL
         StringBuilder sb = null;
         String subject = null;
         try{
-            subject = String.format("Envio de evidencia del folio %s - FERBO ", this.folioCliente);
+            subject = String.format("Envio de evidencias del folio %s - FERBO ", this.folioCliente);
             log.info("Asunto: {}", subject);
             mailHTML = "/mail/mailEnvioEvidencias.html";
             mailFile = new File( getClass().getResource(mailHTML).getFile());
