@@ -10,6 +10,8 @@ API para el sistema de inventarios, facturacion y cobranza de FERBO
 * /movil/generar
 * /movil/verificar
 * /movil/deshabilitar
+* /movil/autenticacion/token
+* /movil/autenticacion/cambiarPassword
 
 ### Clientes
 * /movil/clientes
