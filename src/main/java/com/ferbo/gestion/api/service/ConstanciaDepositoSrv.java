@@ -47,6 +47,15 @@ public class ConstanciaDepositoSrv
         this.constanciaDepositoRepo = constanciaDepositoRepo;
     }
     
+    public ConstanciaDeposito buscarConstanciaPorId(Integer idConstancia) {
+        return this.constanciaDepositoRepo.buscarPorId(idConstancia).orElseThrow(() -> new NoResultException("Constancia no encontrada."));
+    }
+    
+    public ConstanciaDTO buscarPorId(Integer idConstancia)
+    {
+        return this.convertirConstanciaDTO(this.buscarConstanciaPorId(idConstancia));
+    }
+    
     public List<ConstanciaDepositoDTO> buscarKardex(KardexFiltroDTO filtro)
     {
         List<ConstanciaDepositoDTO> listContanciasDepositoDTO = null;

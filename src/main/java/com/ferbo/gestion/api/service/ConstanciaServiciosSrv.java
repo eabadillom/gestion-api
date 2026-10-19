@@ -3,6 +3,7 @@ package com.ferbo.gestion.api.service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.persistence.NoResultException;
 import com.ferbo.gestion.api.dto.ConstanciaDTO;
 import com.ferbo.gestion.api.dto.ConstanciaDetalleDTO;
@@ -10,7 +11,6 @@ import com.ferbo.gestion.api.exception.GestionApiException;
 import com.ferbo.gestion.api.idao.IConstanciaServiciosRepo;
 import com.ferbo.gestion.api.mapper.IConstanciaServicioMapper;
 import com.ferbo.gestion.core.model.inventario.servicio.ConstanciaServicio;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.apache.logging.log4j.LogManager;
@@ -28,6 +28,16 @@ public class ConstanciaServiciosSrv
 
     public ConstanciaServiciosSrv(IConstanciaServiciosRepo constanciaServiciosRepo) {
         this.constanciaServiciosRepo = constanciaServiciosRepo;
+    }
+    
+    public ConstanciaServicio buscarConstanciaPorId(Integer idConstancia) 
+    {
+        return this.constanciaServiciosRepo.buscarPorId(idConstancia).orElseThrow(() -> new NoResultException("Constancia no encontrada."));
+    }
+    
+    public ConstanciaDTO buscarPorId(Integer idConstancia)
+    {
+        return this.convertirConstanciaDTO(this.buscarConstanciaPorId(idConstancia));
     }
     
     public List<ConstanciaDTO> consultarListas(LocalDate fechaInicio, LocalDate fechaFin, Integer idCliente) 

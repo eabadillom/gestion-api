@@ -1,5 +1,14 @@
 package com.ferbo.gestion.api.service;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Base64;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.persistence.NoResultException;
 import com.ferbo.gestion.api.config.SpringEntityManagerProvider;
 import com.ferbo.gestion.api.dto.ConstanciaDTO;
 import com.ferbo.gestion.api.dto.ConstanciaDetalleDTO;
@@ -9,16 +18,6 @@ import com.ferbo.gestion.api.mapper.IConstanciaSalidaMapper;
 import com.ferbo.gestion.api.response.FileResponse;
 import com.ferbo.gestion.core.model.inventario.salida.ConstanciaSalida;
 import com.ferbo.gestion.reports.jasper.ReporteSalidasJR;
-import java.io.IOException;
-import java.sql.Connection;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.persistence.NoResultException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +41,16 @@ public class ConstanciaSalidaSrv
     public ConstanciaSalidaSrv(IConstanciaSalidaRepo constanciaSalidaRepo) 
     {
         this.constanciaSalidaRepo = constanciaSalidaRepo;
+    }
+    
+    public ConstanciaSalida buscarConstanciaPorId(Integer idConstancia)
+    {
+        return this.constanciaSalidaRepo.buscarPorId(idConstancia).orElseThrow(() -> new NoResultException("Constancia no encontrada."));
+    }
+    
+    public ConstanciaDTO buscarPorId(Integer idConstancia)
+    {
+        return this.convertirConstanciaDTO(this.buscarConstanciaPorId(idConstancia));
     }
     
     public FileResponse getPdfSalida(LocalDate fechaInicio, LocalDate fechaFin, Integer idCliente,  Integer idPlanta, Integer idCamara) throws IOException, GestionApiException 

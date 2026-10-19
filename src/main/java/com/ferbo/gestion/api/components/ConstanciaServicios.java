@@ -38,5 +38,10 @@ public class ConstanciaServicios extends AbstractConsultaConstancia
     protected ConstanciaDetalleDTO consultarDetalle(Integer id) throws GestionApiException {
         return constanciaServiciosSrv.buscarConstanciaDetalle(id); 
     }
+
+    @Override
+    public ConstanciaDTO buscarPorId(Integer idConstancia) {
+        return constanciaServiciosSrv.buscarPorId(idConstancia);
+    }
     
 }

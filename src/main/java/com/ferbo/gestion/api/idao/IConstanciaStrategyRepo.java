@@ -12,5 +12,6 @@ public interface IConstanciaStrategyRepo
     TipoConstanciaDTO tipo();
     List<ConstanciaDTO> listarConstancias(Integer idCliente, LocalDate fechaInicio, LocalDate fechaFin);
     ConstanciaDTO buscarPorFolio(String folio);
-    ConstanciaDetalleDTO buscarDetalle(Integer id) throws GestionApiException ;
+    ConstanciaDetalleDTO buscarDetalle(Integer id) throws GestionApiException;
+    ConstanciaDTO buscarPorId(Integer idConstancia);
 }

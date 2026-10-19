@@ -17,6 +17,7 @@ public interface IDetalleConstanciaSalidaMapper
     @Mapping(source = "unidad", target = "unidad")
     @Mapping(source = "peso", target = "peso")
     @Mapping(source = "folioEntrada", target = "folioEntrada")
+    @Mapping(source = "partida.camara.planta.abrev", target = "planta")
     @Mapping(source = "camara", target = "camara")
     ProductoDTO toSalidaDetallesDTO(DetalleConstanciaSalida detalleConstanciaSalida);
     

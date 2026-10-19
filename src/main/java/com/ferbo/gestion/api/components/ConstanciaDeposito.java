@@ -39,4 +39,9 @@ public class ConstanciaDeposito extends AbstractConsultaConstancia
         return constanciaDepositoSrv.buscarConstanciaDetalle(id); 
     }
 
+    @Override
+    public ConstanciaDTO buscarPorId(Integer idConstancia) {
+        return constanciaDepositoSrv.buscarPorId(idConstancia);
+    }
+
 }

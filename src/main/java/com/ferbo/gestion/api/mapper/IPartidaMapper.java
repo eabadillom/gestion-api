@@ -17,6 +17,7 @@ public interface IPartidaMapper
     @Mapping(source = "cantidadTotal", target = "piezas")
     @Mapping(source = "unidadProducto.unidadManejo.descripcion", target = "unidad")
     @Mapping(source = "pesoTotal", target = "peso")
+    @Mapping(source = "camara.planta.abrev", target = "planta")
     @Mapping(source = "camara.descripcion", target = "camara")
     ProductoDTO toDepositoPartidaDTO(Partida partida);
     

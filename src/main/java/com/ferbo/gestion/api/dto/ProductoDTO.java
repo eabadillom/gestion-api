@@ -9,9 +9,9 @@ public class ProductoDTO
     private String tarima = null;
     private Integer piezas = null;
     private String unidad = null;
-    private BigDecimal cantidadCobro = null;
     private BigDecimal peso = null;
     private String folioEntrada = null;
+    private String planta = null;
     private String camara = null;
     private String origen = null;
     private String destino = null;
@@ -59,14 +59,6 @@ public class ProductoDTO
         this.unidad = unidad;
     }
 
-    public BigDecimal getCantidadCobro() {
-        return cantidadCobro;
-    }
-
-    public void setCantidadCobro(BigDecimal cantidadCobro) {
-        this.cantidadCobro = cantidadCobro;
-    }
-
     public BigDecimal getPeso() {
         return peso;
     }
@@ -85,6 +77,14 @@ public class ProductoDTO
 
     public String getOrigen() {
         return origen;
+    }
+
+    public String getPlanta() {
+        return planta;
+    }
+
+    public void setPlanta(String planta) {
+        this.planta = planta;
     }
 
     public String getCamara() {
@@ -109,7 +109,7 @@ public class ProductoDTO
 
     @Override
     public String toString() {
-        return "ProductoDTO[" + "id: " + id + ", descripcion: " + descripcion + ", tarima: " + tarima + ", piezas: " + piezas + ", unidad: " + unidad + ", cantidadCobro: " + cantidadCobro + ", peso: " + peso + ", folioEntrada: " + folioEntrada + ", camara: " + camara + ", origen: " + origen + ", destino: " + destino + ']';
+        return "ProductoDTO[" + "id: " + id + ", descripcion: " + descripcion + ", tarima: " + tarima + ", piezas: " + piezas + ", unidad: " + unidad + ", peso: " + peso + ", folioEntrada: " + folioEntrada + ", planta: " + planta + ", camara: " + camara + ", origen: " + origen + ", destino: " + destino + ']';
     }
     
 }
