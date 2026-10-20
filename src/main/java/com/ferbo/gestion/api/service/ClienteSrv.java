@@ -37,6 +37,11 @@ public class ClienteSrv
         return clienteRepo.buscarPorId(idCliente).orElseThrow(() -> new RuntimeException("No se encontro el cliente con ese identificador"));
     }
     
+    public Cliente buscarPorId(Integer idCliente)
+    {
+        return clienteRepo.buscarClientePorId(idCliente);
+    }
+    
     private ClienteDTO convertirCliente(Cliente cliente){
         return iClienteMapper.toDTO(cliente);
     }
