@@ -6,6 +6,16 @@ Este proyecto sigue versionado semántico (SemVer) y el formato de [Keep a Chang
 
 ---
 
+## [1.1.0] - 2026-10-19
+
+### Added
+- Se agrega 2 endpoints para las constancias, uno para la consulta de listas y el otro para el detalle tales como:
+  - Constancia de deposito
+  - Constancia de salida
+  - Constancia de traspaso
+  - Constancia de servicios
+- Se agrega 1 endpoint para el envio de evidencias para las constancias 
+
 ## [1.0.4] - 2026-09-28
 
 ### Added
