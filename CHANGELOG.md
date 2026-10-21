@@ -5,6 +5,10 @@ Todos los cambios importantes en este proyecto serán documentados en este archi
 Este proyecto sigue versionado semántico (SemVer) y el formato de [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 ---
+## [1.1.1] - 2026-10-21
+
+### Change
+- Se rehabilita el endpoint para el deshabilitar el token al cerrar sesion para la app movil y en ControlMovilSrv se modifica el método para deshabilitar token. 
 
 ## [1.1.0] - 2026-10-19
 
