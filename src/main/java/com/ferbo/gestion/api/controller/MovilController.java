@@ -77,8 +77,7 @@ public class MovilController
         return ResponseEntity.ok(usuario);
     }
 
-    @Deprecated
-    @GetMapping("/deshabilitar")
+    @GetMapping("/autenticacion/deshabilitarToken")
     public ResponseEntity<?> deshabilitarToken(@RequestHeader(value = "Authorization", required = true) String authHeader) {
         String respuesta = null;
 
