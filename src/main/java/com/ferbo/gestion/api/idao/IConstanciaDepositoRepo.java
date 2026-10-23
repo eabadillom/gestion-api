@@ -9,4 +9,6 @@ public interface IConstanciaDepositoRepo extends GenericDAO<ConstanciaDeposito, 
 {
     List<ConstanciaDeposito> buscarPorKardex(LocalDate fechaInicio, LocalDate fechaFin, Integer idCliente, Integer idPlanta);
     ConstanciaDeposito buscarPorFolio(String folio);
+    List<ConstanciaDeposito> buscarPorParametros(LocalDate fechaInicio, LocalDate fechaFin, Integer idCliente);
+    ConstanciaDeposito obtenerConstanciaDetalle(Integer id);
 }

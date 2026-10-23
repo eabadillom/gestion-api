@@ -124,8 +124,8 @@ public class ControlMovilSrv {
 
     public String deshabilitarToken(String authHeader) throws GestionApiException {
         String token = authHeader.replace("Bearer ", "");
-        String tokenDeshabilitado = sistemaAuthBL.deshabilitar(authHeader);
-        log.info("Token deshabilitado de SGP-API: {}", tokenDeshabilitado);
+        //String tokenDeshabilitado = sistemaAuthBL.deshabilitar(authHeader);
+        //log.info("Token deshabilitado de SGP-API: {}", tokenDeshabilitado);
 
         ControlMovil controlMovil = controlMovilRepo.findByToken(token);
         controlMovil.setValido(Boolean.FALSE);
