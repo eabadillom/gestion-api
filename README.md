@@ -104,6 +104,19 @@ Para obtener el detalle de 1 orden de retiro solo se necesita mandar el id de la
 #### Nota
 Para cancelar la orden de salida se necesita mandar el id de la salida para poder cancelarla.
 
+### Consultar las constancias del tipo: entrada, salida, servicio y traspaso
+* /constancia/{tipo}/listar?fechaInicio?fechaFin?idCliente
+* /constancia/{tipo}/listar?folioCliente
+
+#### Nota
+Para hacer la consulta de constancias se debe ingresar como parametro obligado el tipo de la constancia: DEPOSITO, SALIDA, SERVICIO ó TRASPASO; y como parametros adicionales son: fecha de inicio, fecha fin, identificador del cliente y folio del cliente.
+
+### Consulta del detalle de las constancias del tipo: entrada, salida, servicio y traspaso
+* /constancia/{tipo}/detalle?idConstancia
+
+### Nota
+Para hacer la consulta del detalle de la constancia se debe de ingresar como parametros obligatorios el tipo de la constancia: DEPOSITO, SALIDA, SERVICIO ó TRASPASO; y el identificador de la constancia
+
 ## Actualización de JDK
 Para cambiar de version de java 8 a java 11 o 17 hacer esto en la clase 'SecurityConfig':
 

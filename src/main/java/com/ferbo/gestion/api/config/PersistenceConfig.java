@@ -5,6 +5,8 @@ import com.ferbo.gestion.api.repository.CamaraRepo;
 import com.ferbo.gestion.api.repository.ClienteRepo;
 import com.ferbo.gestion.api.repository.ConstanciaDepositoRepo;
 import com.ferbo.gestion.api.repository.ConstanciaSalidaRepo;
+import com.ferbo.gestion.api.repository.ConstanciaServiciosRepo;
+import com.ferbo.gestion.api.repository.ConstanciaTraspasoRepo;
 import com.ferbo.gestion.api.repository.ControlMovilRepo;
 import com.ferbo.gestion.api.repository.PlantaRepo;
 import com.ferbo.gestion.api.repository.SalidaRepo;
@@ -50,6 +52,15 @@ public class PersistenceConfig
     @Bean
     public ConstanciaSalidaRepo constanciaSalidaRepo(SpringTransactManager transactManager){
         return new ConstanciaSalidaRepo(transactManager);
+    }
+    
+    @Bean ConstanciaServiciosRepo constanciaServiciosRepo(SpringTransactManager transactManager) {
+        return new ConstanciaServiciosRepo(transactManager);
+    }
+    
+    @Bean
+    public ConstanciaTraspasoRepo constanciaTraspasoRepo(SpringTransactManager transactManager) {
+        return new ConstanciaTraspasoRepo(transactManager);
     }
     
     @Bean

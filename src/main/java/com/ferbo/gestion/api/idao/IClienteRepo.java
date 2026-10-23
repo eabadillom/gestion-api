@@ -7,4 +7,5 @@ import java.util.List;
 public interface IClienteRepo extends GenericDAO<Cliente, Integer> 
 {
     public List<Cliente> buscarClientesActivos();
+    public Cliente buscarClientePorId(Integer id);
 }
