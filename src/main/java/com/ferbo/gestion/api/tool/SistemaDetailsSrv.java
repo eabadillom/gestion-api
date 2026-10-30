@@ -13,6 +13,11 @@ import org.springframework.stereotype.Service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * @deprecated Se depreca esta clase ya que no es necesario recuperar los datos del usuario, 
+ * en cambio se hace peticion a sgp-api para comprobar si esta registrado o no.
+ */
+@Deprecated
 @Service
 public class SistemaDetailsSrv implements UserDetailsService 
 {
