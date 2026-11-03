@@ -1,22 +1,14 @@
 package com.ferbo.gestion.api.config;
 
 import com.ferbo.gestion.api.filter.JwtAuthenticationFilter;
-import com.ferbo.gestion.api.tool.SistemaDetailsSrv;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -27,21 +19,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfig 
 {
     @Autowired
-    private SistemaDetailsSrv sistemaDetailsSrv;
-    
-    @Autowired
     private JwtAuthenticationFilter jwtAtuthenticationFilter;
-    
-    @Bean
-    public AuthenticationProvider authenticationProvider() 
-    {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-
-        provider.setUserDetailsService(sistemaDetailsSrv);
-        provider.setPasswordEncoder(encoder());
-
-        return provider;
-    }
     
     /*
     * TODO: Al cambiar de version de SpringBoot de 2.7.18 -> 3.5.13, quitar 
@@ -55,25 +33,16 @@ public class SecurityConfig
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))// JWT es "stateless", no necesitamos sesiones de servidor
             .authorizeRequests(auth -> auth
+                .requestMatchers(new AntPathRequestMatcher("/movil/autenticacion/token")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/gestion/**")).authenticated()
-                .requestMatchers(new AntPathRequestMatcher("/movil/generar")).authenticated()
                 .requestMatchers(new AntPathRequestMatcher("/movil/**")).authenticated()
                 .anyRequest().authenticated()
             )
-            .httpBasic(Customizer.withDefaults())
+            .httpBasic(basic -> basic.disable())
+            .formLogin(form -> form.disable())
             .addFilterBefore(jwtAtuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
             
         return http.build();
-    }
-    
-    @Bean
-    public PasswordEncoder encoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManagerBean(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
     }
     
 }

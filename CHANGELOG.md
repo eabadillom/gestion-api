@@ -5,6 +5,13 @@ Todos los cambios importantes en este proyecto serán documentados en este archi
 Este proyecto sigue versionado semántico (SemVer) y el formato de [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 ---
+## [1.1.2] - 2026-10-30
+
+### Change
+- En SecurityConfig se deshabilita las peticiones por http basic y el endpoint '/movil/autenticacion/token' se permite acceder sin la necesidad de ser autenticado.
+- Se marcan como deprecados la clase de 'SistemaDetailsSrv' al no formar parte del flujo de principal y de las peticiones http basic.
+- En MovilController se elimina la dependencia de 'SistemaDetailsSrv' al ser deprecado.
+
 ## [1.1.1] - 2026-10-21
 
 ### Change
