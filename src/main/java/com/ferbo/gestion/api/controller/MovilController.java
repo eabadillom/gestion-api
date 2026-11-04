@@ -25,7 +25,6 @@ import com.ferbo.gestion.api.mapper.IControlMovilMapper;
 import com.ferbo.gestion.api.model.ControlMovil;
 import com.ferbo.gestion.api.service.ControlMovilSrv;
 import com.ferbo.gestion.api.tool.SecurityTool;
-import com.ferbo.gestion.api.tool.SistemaDetailsSrv;
 import com.ferbo.tools.exception.RuleException;
 import com.ferbo.tools.exception.SystemException;
 import com.ferbo.tools.exception.ToolException;
@@ -53,9 +52,6 @@ public class MovilController
 
     @Autowired
     private JwtUtil jwtUtil;
-
-    @Autowired 
-    private  SistemaDetailsSrv sistemaDetailsSrv;
     
     @Deprecated
     @GetMapping("/generar")

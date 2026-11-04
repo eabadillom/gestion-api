@@ -256,7 +256,8 @@ public class ControlMovilSrv {
         int perfil = -1;
 
         try {
-            perfil = Integer.parseInt(usuarioMovilDTO.getToken());
+            Usuario usuario = usuarioDAO.buscarUsuarioPorNumero(usuarioMovilDTO.getNumeroUsuario()).orElseThrow(() -> new RuntimeException("Perfil no encontrado"));
+            perfil = usuario.getPerfil().getId();
             usuarioMovilDTO.setToken(null);
         } catch (NumberFormatException e) {
             throw new ToolException("El texto recibido no es un número válido.");
