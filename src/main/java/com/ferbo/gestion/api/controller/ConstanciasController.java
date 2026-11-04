@@ -55,7 +55,7 @@ public class ConstanciasController
     }
     
     @GetMapping(value = "/constancia/{tipo}/detalle", produces = "application/json")
-    public ResponseEntity<?> obtenerConstanciaPorIdSalida(@PathVariable(required = true) TipoConstanciaDTO tipo, @RequestParam(required = true) Integer idConstancia)
+    public ResponseEntity<?> obtenerConstanciaPorId(@PathVariable(required = true) TipoConstanciaDTO tipo, @RequestParam(required = true) Integer idConstancia)
     {
         ConstanciaDTO detalleConstancia = null;
         
