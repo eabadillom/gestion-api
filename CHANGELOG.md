@@ -5,6 +5,11 @@ Todos los cambios importantes en este proyecto serán documentados en este archi
 Este proyecto sigue versionado semántico (SemVer) y el formato de [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 ---
+## [1.1.3] - 2026-11-04
+
+### Change
+- Se hacen ajustes en el archivo log4j2.log para el guardado de los logs del proyecto
+
 ## [1.1.2] - 2026-10-30
 
 ### Change
