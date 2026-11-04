@@ -7,7 +7,7 @@
         </Console>
 
         <!-- Archivo con rotación -->
-        <RollingFile name="LogToRollingFile" fileName="${sys:catalina.home}/logs/users.log"
+        <RollingFile name="LogToRollingFile" fileName="${sys:catalina.home}/logs/gestion-api.log"
                      filePattern="${sys:catalina.home}/logs/$${date:yyyy-MM}/users-%d{MM-dd-yyyy}-%i.log.gz">
             <PatternLayout pattern="%d %p %C{1.} [%t] %m%n"/>
             <Policies>
@@ -20,7 +20,7 @@
 
     <Loggers>
         <!-- Logger para la aplicación -->
-        <Logger name="com.chakray.users" level="info" additivity="false">
+        <Logger name="com.ferbo.gestion.api" level="info" additivity="false">
             <AppenderRef ref="LogToRollingFile"/>
             <AppenderRef ref="LogToConsole"/>
         </Logger>
